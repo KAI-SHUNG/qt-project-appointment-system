@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Qt 6.11.2 MinGW 64-bit",
+            "compilerPath": "D:/Qt/Tools/mingw1310_64/bin/g++.exe",
+            "intelliSenseMode": "windows-gcc-x64",
+            "cppStandard": "c++17",
+            "cStandard": "c17",
+            "includePath": [
+                "${workspaceFolder}",
+                "${workspaceFolder}/build",
+                "${workspaceFolder}/build/debug",
+                "D:/Qt/6.11.2/mingw_64/include",
+                "D:/Qt/6.11.2/mingw_64/include/QtCore",
+                "D:/Qt/6.11.2/mingw_64/include/QtGui",
+                "D:/Qt/6.11.2/mingw_64/include/QtWidgets",
+                "D:/Qt/6.11.2/mingw_64/mkspecs/win32-g++"
+            ],
+            "defines": [
+                "UNICODE",
+                "_UNICODE",
+                "WIN32",
+                "QT_WIDGETS_LIB",
+                "QT_GUI_LIB",
+                "QT_CORE_LIB",
+                "QT_QML_DEBUG"
+            ]
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,47 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Qt: qmake",
+            "type": "shell",
+            "command": "D:/Qt/6.11.2/mingw_64/bin/qmake.exe",
+            "args": [
+                "${workspaceFolder}/09025117.pro",
+                "CONFIG+=debug",
+                "CONFIG-=release",
+                "-o",
+                "${workspaceFolder}/build/Makefile"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Qt: open Designer",
+            "type": "process",
+            "command": "D:/Qt/6.11.2/mingw_64/bin/designer.exe",
+            "args": [
+                "${file}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Qt: build",
+            "type": "shell",
+            "command": "D:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe",
+            "args": [
+                "-C",
+                "${workspaceFolder}/build",
+                "-j8"
+            ],
+            "dependsOn": "Qt: qmake",
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        }
+    ]
+}
