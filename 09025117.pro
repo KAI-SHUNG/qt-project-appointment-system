@@ -1,6 +1,6 @@
 QT += widgets
 
-CONFIG += c++17
+CONFIG += c++20
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -8,10 +8,19 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    src/appointment.cpp \
+    src/doctor.cpp \
+    src/storage.cpp \
+    src/timeslot.cpp \
+    test/test_timeslot.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    src/appointment.h \
+    src/doctor.h \
+    src/storage.h \
+    src/timeslot.h
 
 FORMS += \
     mainwindow.ui

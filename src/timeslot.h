@@ -9,14 +9,11 @@ class Timeslot
 public:
     Timeslot(Qt::DayOfWeek, QTime, QTime, int = default_capability);
     // to sequence timeslots from mon to sun
-    bool operator<(const Timeslot&);
+    bool operator<(const Timeslot&) const;
+    bool operator==(const Timeslot&) const;
 
     // judge whether a time is in timeslot
     bool contains(QDateTime) const;
-
-    // transform a datetime or date type to dayofweek
-    static Qt::DayOfWeek toDayOfWeek(QDateTime);
-    static Qt::DayOfWeek toDayOfWeek(QDate);
 
     // getter
     Qt::DayOfWeek getDayOfWeek() const;
@@ -30,7 +27,6 @@ private:
     QTime endTime;
     int capability;
     static int default_capability;
-    static QMap<QString, Qt::DayOfWeek> mapDayOfWeek;
 };
 
 #endif // TIMESLOT_H

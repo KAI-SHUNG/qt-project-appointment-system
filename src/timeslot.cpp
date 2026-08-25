@@ -2,25 +2,6 @@
 
 int Timeslot::default_capability = 5;
 
-QMap<QString, Qt::DayOfWeek> Timeslot::mapDayOfWeek = {
-    {"Mon", Qt::Monday},
-    {"Tue", Qt::Tuesday},
-    {"Wed", Qt::Wednesday},
-    {"Thu", Qt::Thursday},
-    {"Fri", Qt::Friday},
-    {"Sat", Qt::Saturday},
-    {"Sun", Qt::Sunday},
-    };
-
-Qt::DayOfWeek Timeslot::toDayOfWeek(QDateTime datetime)
-{
-    return toDayOfWeek(datetime.date());
-}
-Qt::DayOfWeek Timeslot::toDayOfWeek(QDate date)
-{
-    return mapDayOfWeek[date.toString("ddd")];
-}
-
 Timeslot::Timeslot(Qt::DayOfWeek dayOfWeek,
                    QTime startTime,
                    QTime endTime,
@@ -35,15 +16,22 @@ Timeslot::Timeslot(Qt::DayOfWeek dayOfWeek,
     }
 }
 
-bool Timeslot::operator<(const Timeslot& other)
+bool Timeslot::operator<(const Timeslot& other) const
 {
     return dayOfWeek < other.dayOfWeek or
-        (dayOfWeek == other.dayOfWeek and startTime < other.startTime);
+           (dayOfWeek == other.dayOfWeek and startTime < other.startTime);
+}
+
+bool Timeslot::operator==(const Timeslot& other) const
+{
+    return dayOfWeek == other.dayOfWeek
+           && startTime == other.startTime
+           && endTime == other.endTime;
 }
 
 bool Timeslot::contains(QDateTime datetime) const
 {
-    if (toDayOfWeek(datetime) != dayOfWeek){
+    if (datetime.date().dayOfWeek() != dayOfWeek){
         return false;
     }
     QTime time = datetime.time();
