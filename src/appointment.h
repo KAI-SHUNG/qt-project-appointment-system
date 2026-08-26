@@ -21,10 +21,11 @@ public:
     QString getDoctorId() const;
     QString getPatientId() const;
     QDate getDate() const;
-    void setDate(const QDate &newDate);
     Timeslot getTimeslot() const;
-    void setTimeslot(const Timeslot &newTimeslot);
     QString getSymptom() const;
+
+    void setDate(const QDate &newDate);
+    void setTimeslot(const Timeslot &newTimeslot);
     void setSymptom(const QString &newSymptom);
 
 private:
