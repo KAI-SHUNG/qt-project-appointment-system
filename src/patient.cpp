@@ -4,10 +4,9 @@ Patient::Patient(const QString& name,
                  int age,
                  const Gender& gender,
                  const QString& patientId,
-                 const QString& phoneNumber,
-                 const QString& symptom)
-    :human(name, age, gender),
-    patientId(patientId),phoneNumber(phoneNumber),symptom(symptom)
+                 const QString& phoneNumber)
+    :Human(name, age, gender),
+    patientId(patientId),phoneNumber(phoneNumber)
 {}
 
 QString Patient::getPatientId() const
@@ -18,9 +17,4 @@ QString Patient::getPatientId() const
 QString Patient::getPhoneNumber() const
 {
     return phoneNumber;
-}
-
-QString Patient::getSymptom() const
-{
-    return symptom;
 }

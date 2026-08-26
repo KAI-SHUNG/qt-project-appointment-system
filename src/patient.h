@@ -4,16 +4,14 @@
 #include <QObject>
 #include "human.h"
 
-class Patient : public human
+class Patient : public Human
 {
 public:
-    Patient(){}
     Patient(const QString& name,
             int age,
             const Gender& gender,
             const QString& patientId,
-            const QString& phoneNumber,
-            const QString& symptom);
+            const QString& phoneNumber);
 
     QString getPatientId() const;
     QString getPhoneNumber() const;
@@ -22,7 +20,6 @@ public:
 private:
     QString patientId;
     QString phoneNumber;
-    QString symptom;
 };
 
 #endif // PATIENT_H
