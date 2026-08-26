@@ -6,7 +6,7 @@
 #include "human.h"
 #include "timeslot.h"
 
-class Doctor: public human
+class Doctor: public Human
 {
 public:
     Doctor(){}

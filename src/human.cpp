@@ -1,25 +1,25 @@
 #include "human.h"
 
-human::human(QString name, int age, Gender gender)
+Human::Human(QString name, int age, Gender gender)
     :name(name), age(age), gender(gender)
 {}
 
-QString human::getName() const
+QString Human::getName() const
 {
     return name;
 }
 
-void human::setName(const QString &newName)
+void Human::setName(const QString &newName)
 {
     name = newName;
 }
 
-int human::getAge() const
+int Human::getAge() const
 {
     return age;
 }
 
-void human::setAge(int newAge)
+void Human::setAge(int newAge)
 {
     if (age < 0){
         throw std::invalid_argument("年龄必须是正数！");
@@ -27,12 +27,12 @@ void human::setAge(int newAge)
     age = newAge;
 }
 
-Gender human::getGender() const
+Gender Human::getGender() const
 {
     return gender;
 }
 
-void human::setGender(Gender newGender)
+void Human::setGender(Gender newGender)
 {
     gender = newGender;
 }

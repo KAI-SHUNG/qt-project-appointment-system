@@ -7,7 +7,7 @@ Doctor::Doctor(
     const QString& doctorId,
     const QString& title,
     const QString& department
-    ):human(name, age,gender),
+    ):Human(name, age,gender),
     doctorId(doctorId),title(title),department(department)
 {}
 

@@ -5,11 +5,11 @@
 
 enum class Gender {Male, Female};
 
-class human
+class Human
 {
 public:
-    human(){}
-    human(QString, int, Gender);
+    Human(){}
+    Human(QString, int, Gender);
 
     QString getName() const;
     void setName(const QString &newName);
