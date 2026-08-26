@@ -13,7 +13,9 @@ public:
     bool operator==(const Timeslot&) const;
 
     // judge whether a time is in timeslot
-    bool contains(QDateTime) const;
+    bool contains(const QDateTime&) const;
+    // judge whether two timeslot overlap
+    bool overlaps(const Timeslot&) const;
 
     // getter
     Qt::DayOfWeek getDayOfWeek() const;
