@@ -1,22 +1,22 @@
 #ifndef APPOINTMENT_H
 #define APPOINTMENT_H
 
-#include "patient.h"
+#include "src/patient.h"
 #include "src/doctor.h"
-#include "timeslot.h"
+#include "src/timeslot.h"
 #include <QDateTime>
 #include <QObject>
 
 class Appointment {
 public:
     Appointment(const QString& appointId, const Doctor& doctor, const Patient& patient,
-                const QDate& date, const Timeslot& timeslot, const QString& symptom);
+                const QString& symptom, const QDate& date, const Timeslot& timeslot);
 
     QString  getAppointId() const;
     QString  getDoctorId() const;
-    QString  getPatientId() const;
-    QDate    getDate() const;
+    Patient  getPatient() const;
     Timeslot getTimeslot() const;
+    QDate    getDate() const;
     QString  getSymptom() const;
 
     void setDate(const QDate& newDate);
@@ -26,12 +26,12 @@ public:
 private:
     QString appointId;
     QString doctorId;
-    QString patientId;
+
+    Patient patient;
+    QString symptom;
 
     QDate    date;
     Timeslot timeslot;
-
-    QString symptom;
 };
 
 #endif // APPOINTMENT_H

@@ -1,9 +1,9 @@
 #include "appointment.h"
 
 Appointment::Appointment(const QString& appointId, const Doctor& doctor, const Patient& patient,
-                         const QDate& date, const Timeslot& timeslot, const QString& symptom)
-    : appointId(appointId), doctorId(doctor.getDoctorId()), patientId(patient.getPatientId()),
-      date(date), timeslot(timeslot), symptom(symptom)
+                         const QString& symptom, const QDate& date, const Timeslot& timeslot)
+    : appointId(appointId), doctorId(doctor.getDoctorId()), patient(patient), symptom(symptom),
+      date(date), timeslot(timeslot)
 {
     if (date.dayOfWeek() != timeslot.getDayOfWeek()) {
         throw std::runtime_error("预约日期不一致！");
@@ -20,9 +20,9 @@ QString Appointment::getDoctorId() const
     return doctorId;
 }
 
-QString Appointment::getPatientId() const
+Patient Appointment::getPatient() const
 {
-    return patientId;
+    return patient;
 }
 
 QDate Appointment::getDate() const
