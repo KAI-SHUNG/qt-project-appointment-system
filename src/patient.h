@@ -12,6 +12,9 @@ public:
     QString getPatientId() const;
     QString getPhoneNumber() const;
 
+    void setPatientId(const QString& newPatientId);
+    void setPhoneNumber(const QString& newPhoneNumber);
+
 private:
     QString patientId;
     QString phoneNumber;
