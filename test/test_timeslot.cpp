@@ -68,7 +68,7 @@ void TestCompare(){
     qDebug("TestCompare Passed.");
 }
 
-int main(){
+void testTimeslot(){
     qDebug("=== Testing Timeslot ===");
 
     TestConstruct();
@@ -76,5 +76,5 @@ int main(){
     TestContain();
     TestCompare();
 
-    qDebug("=== All Test Passed ===");
+    qDebug("=== Timeslot Test Passed ===");
 }
