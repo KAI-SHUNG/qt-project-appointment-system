@@ -11,6 +11,7 @@ SOURCES += \
     mainwindow.cpp \
     src/appointment.cpp \
     src/doctor.cpp \
+    src/hospital.cpp \
     src/human.cpp \
     src/patient.cpp \
     src/timeslot.cpp \
@@ -24,6 +25,7 @@ HEADERS += \
     mainwindow.h \
     src/appointment.h \
     src/doctor.h \
+    src/hospital.h \
     src/human.h \
     src/patient.h \
     src/timeslot.h
