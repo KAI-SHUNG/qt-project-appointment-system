@@ -15,7 +15,6 @@ public:
 
     QString getPatientId() const;
     QString getPhoneNumber() const;
-    QString getSymptom() const;
 
 private:
     QString patientId;
