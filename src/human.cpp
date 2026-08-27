@@ -25,13 +25,13 @@ int Human::getAge() const
 
 void Human::setAge(int newAge)
 {
-    if (age < 0){
+    if (newAge < 0){
         throw std::invalid_argument("年龄必须是正数！");
     }
     age = newAge;
 }
 
-Gender Human::getGender() const
+Human::Gender Human::getGender() const
 {
     return gender;
 }
