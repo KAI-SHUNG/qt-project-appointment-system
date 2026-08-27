@@ -1,19 +1,14 @@
 #include "doctor.h"
 
-Doctor::Doctor(
-    const QString& name,
-    int age,
-    const Gender& gender,
-    const QString& doctorId,
-    const QString& title,
-    const QString& department
-    ):Human(name, age,gender),
-    doctorId(doctorId),title(title),department(department)
-{}
+Doctor::Doctor(const QString& name, int age, const Gender& gender, const QString& doctorId,
+               const QString& title, const QString& department)
+    : Human(name, age, gender), doctorId(doctorId), title(title), department(department)
+{
+}
 
 void Doctor::addTimeslot(const Timeslot& timeslot)
 {
-    if(this->isConflict(timeslot)){
+    if (this->isConflict(timeslot)) {
         throw std::invalid_argument("日程冲突！");
     }
 
@@ -21,17 +16,17 @@ void Doctor::addTimeslot(const Timeslot& timeslot)
     std::sort(schedule.begin(), schedule.end());
 }
 
-void Doctor::removeTimeslot(const Timeslot &timeslot)
+void Doctor::removeTimeslot(const Timeslot& timeslot)
 {
     bool flag = false;
-    for(auto it = schedule.begin(); it != schedule.end(); ++it){
-        if (timeslot == *it){
+    for (auto it = schedule.begin(); it != schedule.end(); ++it) {
+        if (timeslot == *it) {
             flag = true;
             schedule.erase(it);
             break;
         }
     }
-    if (!flag){
+    if (!flag) {
         qWarning() << "找不到时间段："
                    << "dayOfWeek: " << timeslot.getDayOfWeek()
                    << "startTime: " << timeslot.getStartTime()
@@ -40,10 +35,10 @@ void Doctor::removeTimeslot(const Timeslot &timeslot)
     }
 }
 
-bool Doctor::isConflict(const Timeslot &timeslot) const
+bool Doctor::isConflict(const Timeslot& timeslot) const
 {
-    for(const auto& t: schedule){
-        if(t.overlaps(timeslot)){
+    for (const auto& t : schedule) {
+        if (t.overlaps(timeslot)) {
             return true;
         }
     }

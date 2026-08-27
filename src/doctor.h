@@ -1,23 +1,19 @@
 #ifndef DOCTOR_H
 #define DOCTOR_H
 
-#include <QObject>
-#include <QDateTime>
 #include "human.h"
 #include "timeslot.h"
+#include <QDateTime>
+#include <QObject>
 
-class Doctor: public Human
-{
+class Doctor : public Human {
 public:
-    Doctor(){}
-    Doctor(
-        const QString& name,
-        int age,
-        const Gender& gender,
-        const QString& doctorId,
-        const QString& title,
-        const QString& department
-        );
+    Doctor()
+    {
+    }
+
+    Doctor(const QString& name, int age, const Gender& gender, const QString& doctorId,
+           const QString& title, const QString& department);
 
     void addTimeslot(const Timeslot& timeslot);
     void removeTimeslot(const Timeslot& timeslot);

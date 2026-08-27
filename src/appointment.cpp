@@ -1,16 +1,11 @@
 #include "appointment.h"
 
-Appointment::Appointment(const QString& appointId,
-                         const Doctor& doctor,
-                         const Patient& patient,
-                         const QDate& date,
-                         const Timeslot& timeslot,
-                         const QString& symptom)
-    :appointId(appointId),
-    doctorId(doctor.getDoctorId()),patientId(patient.getPatientId()),
-    date(date),timeslot(timeslot), symptom(symptom)
+Appointment::Appointment(const QString& appointId, const Doctor& doctor, const Patient& patient,
+                         const QDate& date, const Timeslot& timeslot, const QString& symptom)
+    : appointId(appointId), doctorId(doctor.getDoctorId()), patientId(patient.getPatientId()),
+      date(date), timeslot(timeslot), symptom(symptom)
 {
-    if (date.dayOfWeek() != timeslot.getDayOfWeek()){
+    if (date.dayOfWeek() != timeslot.getDayOfWeek()) {
         throw std::runtime_error("预约日期不一致！");
     }
 }
@@ -45,17 +40,17 @@ QString Appointment::getSymptom() const
     return symptom;
 }
 
-void Appointment::setDate(const QDate &newDate)
+void Appointment::setDate(const QDate& newDate)
 {
     date = newDate;
 }
 
-void Appointment::setTimeslot(const Timeslot &newTimeslot)
+void Appointment::setTimeslot(const Timeslot& newTimeslot)
 {
     timeslot = newTimeslot;
 }
 
-void Appointment::setSymptom(const QString &newSymptom)
+void Appointment::setSymptom(const QString& newSymptom)
 {
     symptom = newSymptom;
 }

@@ -1,11 +1,10 @@
 #ifndef TIMESLOT_H
 #define TIMESLOT_H
 
-#include <QObject>
 #include <QDateTime>
+#include <QObject>
 
-class Timeslot
-{
+class Timeslot {
 public:
     Timeslot(Qt::DayOfWeek, QTime, QTime, int = default_capability);
     // to sequence timeslots from mon to sun
@@ -19,16 +18,16 @@ public:
 
     // getter
     Qt::DayOfWeek getDayOfWeek() const;
-    QTime getStartTime() const;
-    QTime getEndTime() const;
-    int getCapability() const;
+    QTime         getStartTime() const;
+    QTime         getEndTime() const;
+    int           getCapability() const;
 
 private:
     Qt::DayOfWeek dayOfWeek;
-    QTime startTime;
-    QTime endTime;
-    int capability;
-    static int default_capability;
+    QTime         startTime;
+    QTime         endTime;
+    int           capability;
+    static int    default_capability;
 };
 
 #endif // TIMESLOT_H

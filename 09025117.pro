@@ -15,7 +15,9 @@ SOURCES += \
     src/patient.cpp \
     src/timeslot.cpp \
     test/main_test.cpp \
+    test/test_doctor.cpp \
     test/test_human.cpp \
+    test/test_patient.cpp \
     test/test_timeslot.cpp
 
 HEADERS += \

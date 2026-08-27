@@ -1,16 +1,12 @@
 #ifndef PATIENT_H
 #define PATIENT_H
 
-#include <QObject>
 #include "human.h"
+#include <QObject>
 
-class Patient : public Human
-{
+class Patient : public Human {
 public:
-    Patient(const QString& name,
-            int age,
-            const Gender& gender,
-            const QString& patientId,
+    Patient(const QString& name, int age, const Gender& gender, const QString& patientId,
             const QString& phoneNumber);
 
     QString getPatientId() const;
