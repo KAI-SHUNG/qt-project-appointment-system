@@ -15,3 +15,13 @@ QString Patient::getPhoneNumber() const
 {
     return phoneNumber;
 }
+
+void Patient::setPatientId(const QString& newPatientId)
+{
+    patientId = newPatientId;
+}
+
+void Patient::setPhoneNumber(const QString& newPhoneNumber)
+{
+    phoneNumber = newPhoneNumber;
+}
