@@ -24,10 +24,11 @@ void Doctor::addTimeslot(const Timeslot& timeslot)
 void Doctor::removeTimeslot(const Timeslot &timeslot)
 {
     bool flag = false;
-    for(auto it = schedule.begin(); it != schedule.end(); it++){
+    for(auto it = schedule.begin(); it != schedule.end(); ++it){
         if (timeslot == *it){
             flag = true;
-            it = schedule.erase(it);
+            schedule.erase(it);
+            break;
         }
     }
     if (!flag){
