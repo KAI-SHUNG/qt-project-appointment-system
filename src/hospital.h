@@ -4,19 +4,27 @@
 #include "src/appointment.h"
 #include "src/doctor.h"
 
+#include <QDate>
+
 class Hospital {
 public:
     Hospital(const QString& doctorsPath      = {},
              const QString& appointmentsPath = {});
 
-    // Doctor
-    bool    addDoctor(const Doctor& doctor);
-    bool    removeDoctor(const QString& doctorId);
+    // Doctor (duplicate id -> throws std::invalid_argument)
+    void    addDoctor(const Doctor& doctor);
+    bool    removeDoctor(const QString& doctorId); // cascades its appointments
     Doctor* findDoctor(const QString& doctorId);
-    // Appointment
-    bool         addAppointment(const Appointment& appointment);
+    // Appointment (rule violations throw std::invalid_argument)
+    void         addAppointment(const Appointment& appointment);
     bool         removeAppointment(const QString& appointId);
     Appointment* findAppointment(const QString& appointId);
+
+    // Query helpers
+    int  countAppointments(const QString& doctorId,
+                           const QDate&    date,
+                           const Timeslot& timeslot) const;
+    bool hasPatientAppointment(const QString& patientId) const;
 
     bool load();
     bool save() const;
@@ -29,8 +37,8 @@ private:
     bool loadDoctors();
     bool loadAppointments();
 
-    bool saveDoctors();
-    bool saveAppointments();
+    bool saveDoctors() const;
+    bool saveAppointments() const;
 
 private:
     QString doctorsFilePath;
