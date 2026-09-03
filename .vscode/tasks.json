@@ -42,6 +42,38 @@
                 "isDefault": true
             },
             "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Qt: qmake (tests)",
+            "type": "shell",
+            "command": "D:/Qt/6.11.2/mingw_64/bin/qmake.exe",
+            "args": [
+                "${workspaceFolder}/09025117.pro",
+                "CONFIG+=debug",
+                "CONFIG-=release",
+                "BUILD_TESTS=1",
+                "-o",
+                "${workspaceFolder}/build/Makefile.tests"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Qt: build tests",
+            "type": "shell",
+            "command": "D:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe",
+            "args": [
+                "-C",
+                "${workspaceFolder}/build",
+                "-f",
+                "Makefile.tests",
+                "-j8"
+            ],
+            "dependsOn": "Qt: qmake (tests)",
+            "dependsOrder": "sequence",
+            "problemMatcher": "$gcc"
         }
     ]
 }

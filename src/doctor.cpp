@@ -46,6 +46,22 @@ bool Doctor::isConflict(const Timeslot& timeslot) const
     return false;
 }
 
+void Doctor::setTitle(const QString& newTitle)
+{
+    title = newTitle;
+}
+
+void Doctor::setDepartment(const QString& newDepartment)
+{
+    department = newDepartment;
+}
+
+void Doctor::setSchedule(const QList<Timeslot>& newSchedule)
+{
+    schedule = newSchedule;
+    std::sort(schedule.begin(), schedule.end());
+}
+
 QString Doctor::getDoctorId() const
 {
     return doctorId;

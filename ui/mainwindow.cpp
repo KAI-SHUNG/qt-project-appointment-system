@@ -5,7 +5,10 @@
 #include <QFile>
 #include <QLabel>
 #include <QListWidgetItem>
+#include <QMetaObject>
 #include <QVBoxLayout>
+
+#include "pages/doctorspage.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QWidget(parent), ui(new Ui::MainWindow), hospital_()
@@ -50,11 +53,19 @@ Hospital& MainWindow::hospital()
 
 void MainWindow::buildPages()
 {
-    // S2 暂用占位页，后续环节替换为真实页面（保持与侧栏顺序一致）
+    // 顺序与侧栏一致：首页概览 / 医生管理 / 预约挂号 / 预约查询
     ui->contentStack->addWidget(makePlaceholderPage(QStringLiteral("首页概览")));
-    ui->contentStack->addWidget(makePlaceholderPage(QStringLiteral("医生管理")));
+
+    auto* doctorsPage = new DoctorsPage(hospital_, this);
+    ui->contentStack->addWidget(doctorsPage); // index 1
+
     ui->contentStack->addWidget(makePlaceholderPage(QStringLiteral("预约挂号")));
     ui->contentStack->addWidget(makePlaceholderPage(QStringLiteral("预约查询")));
+
+    // S5 接入预约查询筛选后，再替换为真实页面
+    connect(doctorsPage, &DoctorsPage::requestViewAppointments, this,
+            [this] { ui->navList->setCurrentRow(3); });
+
     ui->contentStack->setCurrentIndex(0);
 }
 
@@ -72,6 +83,12 @@ QWidget* MainWindow::makePlaceholderPage(const QString& text)
 
 void MainWindow::onNavChanged(int index)
 {
-    if (index >= 0 && index < ui->contentStack->count())
+    if (index >= 0 && index < ui->contentStack->count()) {
         ui->contentStack->setCurrentIndex(index);
+
+        // 切页后调用页面自身的 refresh()（占位页没有该方法则忽略）
+        if (QWidget* page = ui->contentStack->currentWidget()) {
+            QMetaObject::invokeMethod(page, "refresh", Qt::DirectConnection);
+        }
+    }
 }

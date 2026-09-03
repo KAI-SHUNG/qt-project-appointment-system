@@ -28,14 +28,25 @@ HEADERS += \
 isEmpty(BUILD_TESTS) {
     SOURCES += \
         main.cpp \
-        ui/mainwindow.cpp
+        ui/mainwindow.cpp \
+        ui/pages/doctorspage.cpp \
+        ui/dialogs/doctordialog.cpp \
+        ui/dialogs/timeslotdialog.cpp
 
     HEADERS += \
         ui/mainwindow.h \
-        ui/theme.h
+        ui/theme.h \
+        ui/datadefs.h \
+        ui/persistence.h \
+        ui/pages/doctorspage.h \
+        ui/dialogs/doctordialog.h \
+        ui/dialogs/timeslotdialog.h
 
     FORMS += \
-        ui/mainwindow.ui
+        ui/mainwindow.ui \
+        ui/pages/doctorspage.ui \
+        ui/dialogs/doctordialog.ui \
+        ui/dialogs/timeslotdialog.ui
 
     RESOURCES += \
         resources/resources.qrc

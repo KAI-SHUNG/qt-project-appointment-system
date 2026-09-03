@@ -18,6 +18,10 @@ public:
     void addTimeslot(const Timeslot& timeslot);
     void removeTimeslot(const Timeslot& timeslot);
 
+    void setTitle(const QString& newTitle);
+    void setDepartment(const QString& newDepartment);
+    void setSchedule(const QList<Timeslot>& newSchedule);
+
     QString getDoctorId() const;
     QString getTitle() const;
     QString getDepartment() const;
