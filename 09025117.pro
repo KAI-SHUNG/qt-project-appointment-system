@@ -6,23 +6,16 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+# ---- model layer, always compiled ----
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
     src/appointment.cpp \
     src/doctor.cpp \
     src/hospital.cpp \
     src/human.cpp \
     src/patient.cpp \
-    src/timeslot.cpp \
-    test/main_test.cpp \
-    test/test_doctor.cpp \
-    test/test_human.cpp \
-    test/test_patient.cpp \
-    test/test_timeslot.cpp
+    src/timeslot.cpp
 
 HEADERS += \
-    mainwindow.h \
     src/appointment.h \
     src/doctor.h \
     src/hospital.h \
@@ -30,8 +23,34 @@ HEADERS += \
     src/patient.h \
     src/timeslot.h
 
-FORMS += \
-    mainwindow.ui
+# ---- GUI app (default) vs console test runner ----
+# 运行测试: qmake 09025117.pro BUILD_TESTS=1 && mingw32-make
+isEmpty(BUILD_TESTS) {
+    SOURCES += \
+        main.cpp \
+        ui/mainwindow.cpp
+
+    HEADERS += \
+        ui/mainwindow.h \
+        ui/theme.h
+
+    FORMS += \
+        ui/mainwindow.ui
+
+    RESOURCES += \
+        resources/resources.qrc
+} else {
+    CONFIG += console
+    TARGET = hospital_tests
+
+    SOURCES += \
+        test/main_test.cpp \
+        test/test_timeslot.cpp \
+        test/test_human.cpp \
+        test/test_doctor.cpp \
+        test/test_patient.cpp \
+        test/test_hospital.cpp
+}
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
