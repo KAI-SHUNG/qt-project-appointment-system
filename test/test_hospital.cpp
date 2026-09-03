@@ -1,0 +1,233 @@
+#include "src/hospital.h"
+#include <QTemporaryDir>
+#include <cassert>
+#include <stdexcept>
+
+static QDate futureDate()
+{
+    return QDate::currentDate().addDays(3);
+}
+
+static Timeslot slotOf(const QDate& date, int capability)
+{
+    return Timeslot(
+        static_cast<Qt::DayOfWeek>(date.dayOfWeek()),
+        QTime(9, 0),
+        QTime(10, 0),
+        capability);
+}
+
+static Doctor makeDoctor(const QString& id)
+{
+    return Doctor(
+        "张医生",
+        40,
+        Human::Gender::Male,
+        id,
+        "主任医师",
+        "心内科");
+}
+
+static Doctor makeDoctorWithSlot(const QString& id, const Timeslot& slot)
+{
+    Doctor doctor = makeDoctor(id);
+    doctor.addTimeslot(slot);
+    return doctor;
+}
+
+static Patient makePatient(const QString& patientId)
+{
+    return Patient(
+        "王小明",
+        30,
+        Human::Gender::Female,
+        patientId,
+        "13800000000");
+}
+
+static bool throwsOnAdd(Hospital& hospital, const Appointment& appointment)
+{
+    try {
+        hospital.addAppointment(appointment);
+    }
+    catch (const std::invalid_argument&) {
+        return true;
+    }
+    return false;
+}
+
+void testHospitalAddDoctor()
+{
+    QTemporaryDir dir;
+    Hospital h(dir.filePath("doctors.dat"), dir.filePath("appointments.dat"));
+
+    h.addDoctor(makeDoctor("D001"));
+
+    bool duplicateThrown = false;
+    try {
+        h.addDoctor(makeDoctor("D001"));
+    }
+    catch (const std::invalid_argument&) {
+        duplicateThrown = true;
+    }
+    assert(duplicateThrown);
+
+    h.addDoctor(makeDoctor("D002"));
+    assert(h.getDoctors().size() == 2);
+    assert(h.findDoctor("D001") != nullptr);
+    assert(h.findDoctor("D002") != nullptr);
+    assert(h.findDoctor("D999") == nullptr);
+
+    qDebug("TestHospitalAddDoctor Passed.");
+}
+
+void testHospitalRemoveDoctorCascade()
+{
+    QTemporaryDir dir;
+    Hospital h(dir.filePath("doctors.dat"), dir.filePath("appointments.dat"));
+
+    QDate     date = futureDate();
+    Timeslot  slot = slotOf(date, 5);
+    h.addDoctor(makeDoctorWithSlot("D100", slot));
+
+    Appointment appointment(
+        "A001",
+        *h.findDoctor("D100"),
+        makePatient("110101199001011234"),
+        "头痛",
+        date,
+        slot);
+    h.addAppointment(appointment);
+    assert(h.getAppointments().size() == 1);
+
+    assert(h.removeDoctor("D100"));
+    assert(h.findDoctor("D100") == nullptr);
+    assert(h.getAppointments().empty());
+
+    assert(!h.removeDoctor("D100"));
+
+    qDebug("TestHospitalRemoveDoctorCascade Passed.");
+}
+
+void testHospitalAppointmentRules()
+{
+    QTemporaryDir dir;
+    Hospital h(dir.filePath("doctors.dat"), dir.filePath("appointments.dat"));
+
+    QDate    date = futureDate();
+    Timeslot slot = slotOf(date, 5);
+
+    // 1) doctor must exist
+    Doctor ghost = makeDoctor("GHOST");
+    Appointment toMissingDoctor(
+        "A1", ghost, makePatient("pid-1"), "s", date, slot);
+    assert(throwsOnAdd(h, toMissingDoctor));
+
+    // 2) slot must be in the doctor's schedule
+    h.addDoctor(makeDoctor("D200"));
+    Appointment notInSchedule(
+        "A2", *h.findDoctor("D200"), makePatient("pid-2"), "s", date, slot);
+    assert(throwsOnAdd(h, notInSchedule));
+
+    // 3) capacity limit (1 seat)
+    Timeslot tight = slotOf(date, 1);
+    h.addDoctor(makeDoctorWithSlot("D201", tight));
+    Appointment first("A3", *h.findDoctor("D201"), makePatient("pid-3"), "s", date, tight);
+    h.addAppointment(first);
+    Appointment full("A4", *h.findDoctor("D201"), makePatient("pid-4"), "s", date, tight);
+    assert(throwsOnAdd(h, full));
+    assert(h.countAppointments("D201", date, tight) == 1);
+
+    // 4) a patient id may not book twice
+    Timeslot roomy = slotOf(date, 5);
+    h.addDoctor(makeDoctorWithSlot("D202", roomy));
+    Appointment one("A5", *h.findDoctor("D202"), makePatient("pid-5"), "s", date, roomy);
+    h.addAppointment(one);
+    Appointment again("A6", *h.findDoctor("D202"), makePatient("pid-5"), "s", date, roomy);
+    assert(throwsOnAdd(h, again));
+    assert(h.hasPatientAppointment("pid-5"));
+
+    // 5) appointment id must be unique
+    Appointment dupId("A7", *h.findDoctor("D202"), makePatient("pid-7"), "s", date, roomy);
+    Appointment dupIdAgain("A7", *h.findDoctor("D202"), makePatient("pid-8"), "s", date, roomy);
+    h.addAppointment(dupId);
+    assert(throwsOnAdd(h, dupIdAgain));
+    assert(h.findAppointment("A7") != nullptr);
+    assert(h.removeAppointment("A7"));
+    assert(h.findAppointment("A7") == nullptr);
+    assert(!h.removeAppointment("A7"));
+
+    qDebug("TestHospitalAppointmentRules Passed.");
+}
+
+void testHospitalSaveLoadRoundTrip()
+{
+    QTemporaryDir dir;
+    QString doctorsPath = dir.filePath("doctors.dat");
+    QString appointmentsPath = dir.filePath("appointments.dat");
+
+    QDate    date = futureDate();
+    Timeslot slot = slotOf(date, 5);
+
+    {
+        Hospital h(doctorsPath, appointmentsPath);
+        h.addDoctor(makeDoctorWithSlot("D300", slot));
+
+        Appointment appointment(
+            "A100",
+            *h.findDoctor("D300"),
+            makePatient("110101198501011111"),
+            "咳嗽一周",
+            date,
+            slot);
+        h.addAppointment(appointment);
+
+        assert(h.save());
+    }
+
+    {
+        Hospital h(doctorsPath, appointmentsPath);
+        assert(h.load());
+
+        assert(h.getDoctors().size() == 1);
+        Doctor* doc = h.findDoctor("D300");
+        assert(doc != nullptr);
+        assert(doc->getName() == "张医生");
+        assert(doc->getDepartment() == "心内科");
+        assert(doc->getSchedule().size() == 1);
+
+        assert(h.getAppointments().size() == 1);
+        Appointment* apt = h.findAppointment("A100");
+        assert(apt != nullptr);
+        assert(apt->getPatient().getPatientId() == "110101198501011111");
+        assert(apt->getDate() == date);
+        assert(apt->getSymptom() == "咳嗽一周");
+    }
+
+    qDebug("TestHospitalSaveLoadRoundTrip Passed.");
+}
+
+void testHospitalLoadMissingFiles()
+{
+    QTemporaryDir dir;
+    Hospital h(dir.filePath("missing-doctors.dat"), dir.filePath("missing-appointments.dat"));
+
+    assert(h.load());
+    assert(h.getDoctors().empty());
+    assert(h.getAppointments().empty());
+
+    qDebug("TestHospitalLoadMissingFiles Passed.");
+}
+
+void testHospital()
+{
+    qDebug("=== Testing Hospital ===");
+
+    testHospitalAddDoctor();
+    testHospitalRemoveDoctorCascade();
+    testHospitalAppointmentRules();
+    testHospitalSaveLoadRoundTrip();
+    testHospitalLoadMissingFiles();
+
+    qDebug("=== Hospital Test Passed ===");
+}
