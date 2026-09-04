@@ -140,6 +140,24 @@ bool Hospital::hasPatientAppointment(const QString& patientId) const
     return false;
 }
 
+QString Hospital::nextAppointmentId(const QDate& date) const
+{
+    const QString prefix = QStringLiteral("A") + date.toString(QStringLiteral("yyyyMMdd"));
+    for (int i = 1; i <= 999; ++i) {
+        const QString id = prefix + QStringLiteral("%1").arg(i, 3, 10, QChar(0x30));
+        bool exists = false;
+        for (const Appointment& appointment : appointments) {
+            if (appointment.getAppointId() == id) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists)
+            return id;
+    }
+    return {};
+}
+
 bool Hospital::load()
 {
     bool ok = true;

@@ -31,6 +31,7 @@ isEmpty(BUILD_TESTS) {
         ui/mainwindow.cpp \
         ui/pages/doctorspage.cpp \
         ui/pages/registerpage.cpp \
+        ui/widgets/appointmentcalendar.cpp \
         ui/dialogs/doctordialog.cpp \
         ui/dialogs/timeslotdialog.cpp
 
@@ -41,6 +42,7 @@ isEmpty(BUILD_TESTS) {
         ui/persistence.h \
         ui/pages/doctorspage.h \
         ui/pages/registerpage.h \
+        ui/widgets/appointmentcalendar.h \
         ui/dialogs/doctordialog.h \
         ui/dialogs/timeslotdialog.h
 

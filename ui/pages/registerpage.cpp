@@ -1,14 +1,14 @@
 #include "registerpage.h"
-#include "ui_registerpage.h"
 #include "../persistence.h"
+#include "ui_registerpage.h"
 
+#include <QBrush>
 #include <QCompleter>
-#include <QListWidgetItem>
 #include <QLineEdit>
+#include <QListWidgetItem>
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QSignalBlocker>
-#include <QTextCharFormat>
 
 RegisterPage::RegisterPage(Hospital& hospital, QWidget* parent)
     : QWidget(parent), ui(new Ui::RegisterPage), hospital_(hospital)
@@ -24,24 +24,6 @@ RegisterPage::RegisterPage(Hospital& hospital, QWidget* parent)
     ui->calendar->setMaximumDate(QDate::currentDate().addDays(28));
     ui->calendar->setSelectedDate(QDate::currentDate());
     ui->calendar->setVerticalHeaderFormat(QCalendarWidget::NoVerticalHeader);
-    const auto formatCalendarMonth = [this](int year, int month) {
-        const QDate firstDate(year, month, 1);
-        const QDate lastDate(year, month, firstDate.daysInMonth());
-        QTextCharFormat normalFormat;
-        QTextCharFormat unavailableFormat;
-        unavailableFormat.setForeground(QColor(QStringLiteral("#B9C0C9")));
-        unavailableFormat.setBackground(QColor(QStringLiteral("#F5F6F8")));
-
-        for (QDate date = firstDate.addDays(-7); date <= lastDate.addDays(7); date = date.addDays(1)) {
-            if (date < ui->calendar->minimumDate() || date > ui->calendar->maximumDate())
-                ui->calendar->setDateTextFormat(date, unavailableFormat);
-            else
-                ui->calendar->setDateTextFormat(date, normalFormat);
-        }
-    };
-    connect(ui->calendar, &QCalendarWidget::currentPageChanged,
-            this, formatCalendarMonth);
-    formatCalendarMonth(ui->calendar->yearShown(), ui->calendar->monthShown());
 
     connect(ui->cmbDoctor->lineEdit(), &QLineEdit::textEdited,
             this, [this] { onDoctorChanged(); });
@@ -49,6 +31,8 @@ RegisterPage::RegisterPage(Hospital& hospital, QWidget* parent)
             this, &RegisterPage::onDoctorChanged);
     connect(ui->calendar, &QCalendarWidget::selectionChanged,
             this, &RegisterPage::refreshSlots);
+    connect(ui->lstSlots, &QListWidget::itemSelectionChanged,
+            this, &RegisterPage::updateSubmitState);
     connect(ui->btnSubmit, &QPushButton::clicked,
             this, &RegisterPage::submitAppointment);
     refresh();
@@ -113,8 +97,7 @@ void RegisterPage::updateDoctorCard()
     ui->lblDoctorInfo->setText(
         QStringLiteral("%1　%2\n%3 · %4岁 · 编号 %5")
             .arg(doctor->getTitle(), doctor->getDepartment(),
-                 doctor->getGender() == Human::Gender::Male ? QStringLiteral("男")
-                                                             : QStringLiteral("女"))
+                 doctor->getGender() == Human::Gender::Male ? QStringLiteral("男") : QStringLiteral("女"))
             .arg(doctor->getAge())
             .arg(doctor->getDoctorId()));
 }
@@ -123,10 +106,12 @@ void RegisterPage::refreshSlots()
 {
     ui->lstSlots->clear();
     Doctor* doctor = hospital_.findDoctor(currentDoctorId());
-    if (doctor == nullptr)
+    if (doctor == nullptr) {
+        updateSubmitState();
         return;
+    }
 
-    const QDate date = ui->calendar->selectedDate();
+    const QDate date     = ui->calendar->selectedDate();
     const auto& schedule = doctor->getSchedule();
     for (int i = 0; i < schedule.size(); ++i) {
         const Timeslot& slot = schedule.at(i);
@@ -134,21 +119,33 @@ void RegisterPage::refreshSlots()
             continue;
 
         const int remaining = slot.getCapability()
-            - hospital_.countAppointments(doctor->getDoctorId(), date, slot);
-        auto* item = new QListWidgetItem(
+                              - hospital_.countAppointments(doctor->getDoctorId(), date, slot);
+        auto*     item      = new QListWidgetItem(
             QStringLiteral("%1–%2    剩余 %3 个号")
                 .arg(slot.getStartTime().toString(QStringLiteral("HH:mm")),
                      slot.getEndTime().toString(QStringLiteral("HH:mm")))
                 .arg(qMax(remaining, 0)),
             ui->lstSlots);
         item->setData(Qt::UserRole, i);
-        if (remaining <= 0)
+        item->setTextAlignment(Qt::AlignVCenter);
+        if (remaining <= 0) {
+            item->setForeground(QBrush(QColor(QStringLiteral("#9AA1AA"))));
+            item->setBackground(QBrush(QColor(QStringLiteral("#F5F6F8"))));
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled & ~Qt::ItemIsSelectable);
+        }
+        else if (remaining <= 2) {
+            item->setForeground(QBrush(QColor(QStringLiteral("#D97706"))));
+            item->setBackground(QBrush(QColor(QStringLiteral("#FFF7E6"))));
+        }
+        else {
+            item->setForeground(QBrush(QColor(QStringLiteral("#1976D2"))));
+        }
     }
 
     if (ui->lstSlots->count() == 0) {
         auto* empty = new QListWidgetItem(QStringLiteral("该日期无出诊排班"), ui->lstSlots);
         empty->setFlags(Qt::NoItemFlags);
+        updateSubmitState();
         return;
     }
     for (int i = 0; i < ui->lstSlots->count(); ++i) {
@@ -158,17 +155,16 @@ void RegisterPage::refreshSlots()
             break;
         }
     }
+    updateSubmitState();
 }
 
-QString RegisterPage::nextAppointmentId(const QDate& date) const
+void RegisterPage::updateSubmitState()
 {
-    const QString prefix = QStringLiteral("A") + date.toString(QStringLiteral("yyyyMMdd"));
-    for (int i = 1; i <= 999; ++i) {
-        const QString id = prefix + QStringLiteral("%1").arg(i, 3, 10, QLatin1Char('0'));
-        if (hospital_.findAppointment(id) == nullptr)
-            return id;
-    }
-    return {};
+    const QListWidgetItem* item = ui->lstSlots->currentItem();
+    const bool hasDoctor = hospital_.findDoctor(currentDoctorId()) != nullptr;
+    const bool hasSlot = item != nullptr && item->flags().testFlag(Qt::ItemIsEnabled)
+                         && item->data(Qt::UserRole).isValid();
+    ui->btnSubmit->setEnabled(hasDoctor && hasSlot);
 }
 
 void RegisterPage::submitAppointment()
@@ -179,8 +175,8 @@ void RegisterPage::submitAppointment()
         return;
     }
 
-    QListWidgetItem* selected = ui->lstSlots->currentItem();
-    const int slotIndex = selected ? selected->data(Qt::UserRole).toInt() : -1;
+    QListWidgetItem* selected  = ui->lstSlots->currentItem();
+    const int        slotIndex = selected ? selected->data(Qt::UserRole).toInt() : -1;
     if (slotIndex < 0 || slotIndex >= doctor->getSchedule().size()
         || !selected->flags().testFlag(Qt::ItemIsEnabled)) {
         QMessageBox::warning(this, QStringLiteral("预约挂号"),
@@ -188,20 +184,21 @@ void RegisterPage::submitAppointment()
         return;
     }
 
-    const QString name = ui->edtName->text().trimmed();
-    const QString patientId = ui->edtPatientId->text().trimmed();
-    const QString phone = ui->edtPhone->text().trimmed();
-    const QString symptom = ui->edtSymptom->toPlainText().trimmed();
+    const QString name      = ui->edtName->text().trimmed();
+    const QString patientId = ui->edtPatientId->text().trimmed().toUpper();
+    const QString phone     = ui->edtPhone->text().trimmed();
+    const QString symptom   = ui->edtSymptom->toPlainText().trimmed();
     if (name.isEmpty()) {
         QMessageBox::warning(this, QStringLiteral("预约挂号"), QStringLiteral("请输入患者姓名。"));
         return;
     }
-    static const QRegularExpression idPattern(QStringLiteral("^\\d{17}[0-9Xx]$"));
+    static const QRegularExpression idPattern(QStringLiteral("^[0-9]{17}[0-9X]$"));
     if (!idPattern.match(patientId).hasMatch()) {
         QMessageBox::warning(this, QStringLiteral("预约挂号"),
                              QStringLiteral("请输入正确的18位身份证号。"));
         return;
     }
+    ui->edtPatientId->setText(patientId);
     static const QRegularExpression phonePattern(QStringLiteral("^1\\d{10}$"));
     if (!phonePattern.match(phone).hasMatch()) {
         QMessageBox::warning(this, QStringLiteral("预约挂号"),
@@ -213,18 +210,18 @@ void RegisterPage::submitAppointment()
         return;
     }
 
-    const QDate date = ui->calendar->selectedDate();
-    const QString appointmentId = nextAppointmentId(date);
+    const QDate   date          = ui->calendar->selectedDate();
+    const QString appointmentId = hospital_.nextAppointmentId(date);
     if (appointmentId.isEmpty()) {
         QMessageBox::warning(this, QStringLiteral("预约挂号"),
                              QStringLiteral("该日期预约号已达到上限。"));
         return;
     }
 
-    const Timeslot slot = doctor->getSchedule().at(slotIndex);
-    const Patient patient(name, ui->spnAge->value(),
-        ui->cmbGender->currentIndex() == 0 ? Human::Gender::Male : Human::Gender::Female,
-        patientId, phone);
+    const Timeslot                    slot = doctor->getSchedule().at(slotIndex);
+    const Patient                     patient(name, ui->spnAge->value(),
+                                              ui->cmbGender->currentIndex() == 0 ? Human::Gender::Male : Human::Gender::Female,
+                                              patientId, phone);
     const QMessageBox::StandardButton answer = QMessageBox::question(
         this, QStringLiteral("确认预约"),
         QStringLiteral("确认预约：%1（%2），患者 %3，%4 %5-%6？")
@@ -237,7 +234,8 @@ void RegisterPage::submitAppointment()
     try {
         hospital_.addAppointment(
             Appointment(appointmentId, *doctor, patient, symptom, date, slot));
-    } catch (const std::exception& error) {
+    }
+    catch (const std::exception& error) {
         QMessageBox::warning(this, QStringLiteral("预约挂号"), QString::fromUtf8(error.what()));
         refreshSlots();
         return;

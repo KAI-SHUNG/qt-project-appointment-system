@@ -1,11 +1,15 @@
 #ifndef REGISTERPAGE_H
 #define REGISTERPAGE_H
 
-#include <QWidget>
 #include "src/hospital.h"
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class RegisterPage; }
+
+namespace Ui {
+class RegisterPage;
+}
+
 QT_END_NAMESPACE
 
 class RegisterPage : public QWidget {
@@ -21,17 +25,17 @@ public slots:
 private slots:
     void onDoctorChanged();
     void refreshSlots();
+    void updateSubmitState();
     void submitAppointment();
 
 private:
     QString currentDoctorId() const;
-    QString nextAppointmentId(const QDate& date) const;
-    void fillDoctors(const QString& preferredDoctorId = {});
-    void updateDoctorCard();
-    void clearPatientForm();
+    void    fillDoctors(const QString& preferredDoctorId = {});
+    void    updateDoctorCard();
+    void    clearPatientForm();
 
     Ui::RegisterPage* ui;
-    Hospital& hospital_;
+    Hospital&         hospital_;
 };
 
 #endif // REGISTERPAGE_H

@@ -1,6 +1,6 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "theme.h"
+#include "ui_mainwindow.h"
 
 #include <QFile>
 #include <QLabel>
@@ -17,8 +17,7 @@ namespace {
 
 // 唯一例外：Qt 不允许 QSS 对 ::item 设置字重（font-weight 被静默忽略），
 // 选中加粗只能在此改 option.font。其余视觉一律在 resources/style.qss。
-class NavItemDelegate : public QStyledItemDelegate
-{
+class NavItemDelegate : public QStyledItemDelegate {
 public:
     using QStyledItemDelegate::QStyledItemDelegate;
 
@@ -38,11 +37,11 @@ MainWindow::MainWindow(QWidget* parent)
     ui->setupUi(this);
 
     setWindowTitle(Theme::AppTitle);
-    resize(1080, 680);
+    resize(1200, 680);
 
     // 侧栏导航
-    const QStringList nav = { QStringLiteral("首页概览"), QStringLiteral("医生管理"),
-                              QStringLiteral("预约挂号"), QStringLiteral("预约查询") };
+    const QStringList nav = {QStringLiteral("首页概览"), QStringLiteral("医生管理"),
+                             QStringLiteral("预约挂号"), QStringLiteral("预约查询")};
     for (const QString& text : nav) {
         auto* item = new QListWidgetItem(text);
         // 行高由 style.qss 的 #navList::item 决定，勿在此 setSizeHint 覆盖
@@ -51,6 +50,8 @@ MainWindow::MainWindow(QWidget* parent)
     ui->navList->setCurrentRow(0);
     ui->navList->setItemDelegate(new NavItemDelegate(ui->navList));
 
+    // 页面首次构造和刷新前先加载数据，避免页面初始状态为空。
+    hospital_.load();
     buildPages();
 
     connect(ui->navList, &QListWidget::currentRowChanged, this, &MainWindow::onNavChanged);
@@ -59,9 +60,6 @@ MainWindow::MainWindow(QWidget* parent)
     if (qss.open(QIODevice::ReadOnly)) {
         setStyleSheet(QString::fromUtf8(qss.readAll()));
     }
-
-    // 启动即自动加载磁盘数据（保存由各页面每次增删改后调用）
-    hospital_.load();
 }
 
 MainWindow::~MainWindow()

@@ -25,6 +25,7 @@ public:
                            const QDate&    date,
                            const Timeslot& timeslot) const;
     bool hasPatientAppointment(const QString& patientId) const;
+    QString nextAppointmentId(const QDate& date) const;
 
     bool load();
     bool save() const;
