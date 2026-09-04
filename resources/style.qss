@@ -255,26 +255,24 @@ QListWidget#lstSlots::item:disabled {
 /* 滚动条 */
 QScrollBar:vertical {
     background: transparent;
-    width: 8px;
+    border-radius: 4px;
+    width: 12px;
     margin: 2px;
 }
 QScrollBar:horizontal {
     background: transparent;
-    height: 8px;
+    border-radius: 4px;
+    height: 12px;
     margin: 2px;
 }
-QScrollBar::handle:vertical {
+QScrollBar::handle:vertical,
+QScrollBar::handle:horizontal{
     background: #C7CDD6;
     border-radius: 4px;
-    min-height: 30px; 
 }
-QScrollBar::handle:vertical:hover {
+QScrollBar::handle:vertical:hover,
+QScrollBar::handle:horizontal:hover {
     background: #A9B0BB;
-}
-QScrollBar::handle:horizontal {
-    background: #C7CDD6;
-    border-radius: 4px;
-    min-width: 30px;
 }
 QScrollBar::add-line:vertical,
 QScrollBar::sub-line:vertical {
@@ -295,4 +293,20 @@ QToolTip {
     color: #1F2329;
     border: 1px solid #E6EAF0;
     padding: 6px 12px;
+}
+
+QPushButton[link="true"][danger="true"] {
+    color: #F44336;
+}
+QPushButton[link="true"][danger="true"]:hover {
+    color: #D32F2F;
+}
+
+QTableWidget#appointmentsTable,
+QTableWidget#appointmentsTable::item,
+QTableWidget#appointmentsTable QHeaderView::section {
+    font-size: 14px;
+}
+QTableWidget#appointmentsTable::item {
+    padding: 3px 4px;
 }

@@ -31,9 +31,11 @@ isEmpty(BUILD_TESTS) {
         ui/mainwindow.cpp \
         ui/pages/doctorspage.cpp \
         ui/pages/registerpage.cpp \
+        ui/pages/appointmentspage.cpp \
         ui/widgets/appointmentcalendar.cpp \
         ui/dialogs/doctordialog.cpp \
-        ui/dialogs/timeslotdialog.cpp
+        ui/dialogs/timeslotdialog.cpp \
+        ui/dialogs/appointmentdialog.cpp
 
     HEADERS += \
         ui/mainwindow.h \
@@ -42,9 +44,11 @@ isEmpty(BUILD_TESTS) {
         ui/persistence.h \
         ui/pages/doctorspage.h \
         ui/pages/registerpage.h \
+        ui/pages/appointmentspage.h \
         ui/widgets/appointmentcalendar.h \
         ui/dialogs/doctordialog.h \
-        ui/dialogs/timeslotdialog.h
+        ui/dialogs/timeslotdialog.h \
+        ui/dialogs/appointmentdialog.h
 
     FORMS += \
         ui/mainwindow.ui \
