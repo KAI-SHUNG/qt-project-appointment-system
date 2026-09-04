@@ -30,6 +30,7 @@ isEmpty(BUILD_TESTS) {
         main.cpp \
         ui/mainwindow.cpp \
         ui/pages/doctorspage.cpp \
+        ui/pages/registerpage.cpp \
         ui/dialogs/doctordialog.cpp \
         ui/dialogs/timeslotdialog.cpp
 
@@ -39,12 +40,14 @@ isEmpty(BUILD_TESTS) {
         ui/datadefs.h \
         ui/persistence.h \
         ui/pages/doctorspage.h \
+        ui/pages/registerpage.h \
         ui/dialogs/doctordialog.h \
         ui/dialogs/timeslotdialog.h
 
     FORMS += \
         ui/mainwindow.ui \
         ui/pages/doctorspage.ui \
+        ui/pages/registerpage.ui \
         ui/dialogs/doctordialog.ui \
         ui/dialogs/timeslotdialog.ui
 

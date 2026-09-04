@@ -11,6 +11,7 @@
 #include <QVBoxLayout>
 
 #include "pages/doctorspage.h"
+#include "pages/registerpage.h"
 
 namespace {
 
@@ -81,12 +82,14 @@ void MainWindow::buildPages()
     auto* doctorsPage = new DoctorsPage(hospital_, this);
     ui->contentStack->addWidget(doctorsPage); // index 1
 
-    ui->contentStack->addWidget(makePlaceholderPage(QStringLiteral("预约挂号")));
+    auto* registerPage = new RegisterPage(hospital_, this);
+    ui->contentStack->addWidget(registerPage); // index 2
     ui->contentStack->addWidget(makePlaceholderPage(QStringLiteral("预约查询")));
-
-    // S5 接入预约查询筛选后，再替换为真实页面
-    connect(doctorsPage, &DoctorsPage::requestViewAppointments, this,
-            [this] { ui->navList->setCurrentRow(3); });
+    connect(doctorsPage, &DoctorsPage::requestRegisterAppointment, this,
+            [this, registerPage](const QString& doctorId) {
+                ui->navList->setCurrentRow(2);
+                registerPage->selectDoctor(doctorId);
+            });
 
     ui->contentStack->setCurrentIndex(0);
 }

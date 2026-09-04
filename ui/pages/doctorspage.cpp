@@ -180,7 +180,7 @@ void DoctorsPage::addRowActions(int row, const QString& doctorId)
                     [this, doctorId] { deleteDoctor(doctorId); });
         else
             connect(btn, &QPushButton::clicked, this,
-                    [this, doctorId] { viewDoctorAppointments(doctorId); });
+                    [this, doctorId] { registerWithDoctor(doctorId); });
     }
     ui->tblDoctors->setCellWidget(row, 7, container);
 }
@@ -270,9 +270,10 @@ void DoctorsPage::scheduleDoctor(const QString& doctorId)
         refresh();
 }
 
-void DoctorsPage::viewDoctorAppointments(const QString& doctorId)
+void DoctorsPage::registerWithDoctor(const QString& doctorId)
 {
     if (doctorId.isEmpty())
         return;
-    emit requestViewAppointments(doctorId);
+    emit requestRegisterAppointment(doctorId);
+
 }

@@ -223,6 +223,35 @@ QLabel[sub="true"] {
     color: #5A6068;
 }
 
+QFrame[card="true"] {
+    background: #FFFFFF;
+    border: 1px solid #E6EAF0;
+    border-radius: 10px;
+}
+
+QListWidget#lstSlots {
+    background: #FFFFFF;
+    border: 1px solid #E6EAF0;
+    border-radius: 6px;
+    padding: 4px;
+}
+QListWidget#lstSlots::item {
+    border-radius: 5px;
+    padding: 8px 10px;
+    margin: 2px;
+}
+QListWidget#lstSlots::item:hover {
+    background: rgba(33, 150, 243, 0.06);
+}
+QListWidget#lstSlots::item:selected {
+    background: rgba(33, 150, 243, 0.16);
+    color: #1976D2;
+}
+QListWidget#lstSlots::item:disabled {
+    color: #9AA0A6;
+    background: #F5F6F8;
+}
+
 /* 滚动条 */
 QScrollBar:vertical {
     background: transparent;

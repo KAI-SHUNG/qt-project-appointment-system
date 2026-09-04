@@ -23,8 +23,8 @@ public slots:
     void refresh();
 
 signals:
-    // 请求跳转到“预约查询”并只看该医生的预约
-    void requestViewAppointments(const QString& doctorId);
+    // 请求跳转到“预约挂号”并预选该医生
+    void requestRegisterAppointment(const QString& doctorId);
 
 private slots:
     void onAdd();
@@ -42,7 +42,7 @@ private:
     void editDoctor(const QString& doctorId);
     void deleteDoctor(const QString& doctorId);
     void scheduleDoctor(const QString& doctorId);
-    void viewDoctorAppointments(const QString& doctorId);
+    void registerWithDoctor(const QString& doctorId);
 
     Ui::DoctorsPage* ui;
     Hospital&        hospital_;
