@@ -1,5 +1,7 @@
-/* 主色 #2196F3 页面底 #F4F6F8 卡片白 分隔 #E6EAF0 */
-/* 字体 13 16 20 24 */
+/* 配色 主蓝#2196F3(hover#1E88E5 pressed#1976D2 禁用#A9D4F7) */
+/* 文字#1F2329 次#5A6068 弱#9AA0A6 危险#F44336 */
+/* 页面底#F4F6F8 卡片白#FFFFFF 分隔#E6EAF0 输入边#D9DEE6 */
+/* 字体 16 20 24 */
 
 * {
     font-family: "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
@@ -23,7 +25,7 @@ QListWidget#navList {
     border: none;
 }
 QListWidget#navList::item {
-    height: 64px;
+    height: 48px;
     border-radius: 6px;
     margin: 4px 10px;
     padding-left: 16px;
@@ -34,7 +36,7 @@ QListWidget#navList::item:hover {
 QListWidget#navList::item:selected {
     background: #2196F3;
     color: #FFFFFF;
-    font-weight: 800;
+    /* font-weight 对 ::item 无效，选中加粗由 mainwindow.cpp 的 NavItemDelegate 完成 */
 }
 
 /* 内容 */
@@ -44,11 +46,14 @@ QStackedWidget {
 
 QLabel#pageTitle {
     font-size: 24px;
-    font-weight: 600;
+    font-weight: 700;
     color: #1F2329;
 }
-QLabel#pageDesc {
-    font-size: 16px;
+
+/* 占位页（未落地页面的居中灰字） */
+QLabel[placeholder="true"] {
+    font-size: 22px;
+    font-weight: 700;
     color: #9AA0A6;
 }
 
@@ -61,7 +66,7 @@ QPushButton {
     border-radius: 6px;
     background: #FFFFFF;
     color: #1F2329;
-    padding: 6px 12px;
+    padding: 6px 16px;
     min-width: 32px;
 }
 QPushButton:hover {
@@ -76,7 +81,7 @@ QPushButton[primary="true"] {
     border: 1px solid #2196F3;
     background: #2196F3;
     color: #FFFFFF;
-    font-weight: 600;
+    font-weight: 700;
 }
 QPushButton[primary="true"]:hover {
     background: #1E88E5;
@@ -100,7 +105,6 @@ QPushButton[link="true"] {
     background: transparent;
     color: #2196F3;
     padding: 2px 6px;
-    font-size: 13px;
 }
 QPushButton[link="true"]:hover {
     color: #1976D2;
@@ -115,7 +119,7 @@ QDateTimeEdit,
 QSpinBox {
     /* border-radius: 6px; */
     background: #FFFFFF;
-    padding: 6px 12px;
+    padding: 4px 12px;
     selection-background-color: rgba(33, 150, 243, 0.35)
 }
 
@@ -125,7 +129,7 @@ QPlainTextEdit{
     border: 1px solid #D9DEE6;
     border-radius: 6px;
     background: #FFFFFF;
-    padding: 6px 12px;
+    padding: 4px 12px;
     selection-background-color: rgba(33, 150, 243, 0.35);
 }
 
@@ -150,7 +154,7 @@ QTextEdit:disabled {
 /* 单选框/复选框 */
 QRadioButton,
 QCheckBox {
-    spacing: 6px;
+    spacing: 4px;
 }
 QRadioButton::indicator,
 QCheckBox::indicator {
@@ -193,7 +197,7 @@ QHeaderView::section {
     border: none;
     border-bottom: 1px solid #E6EAF0;
     padding: 8px 6px;
-    font-weight: 600;
+    font-weight: 700;
 }
 QTableCornerButton::section {
     background: #FAFBFC;
@@ -203,7 +207,7 @@ QTableCornerButton::section {
 /* 卡片 */
 QLabel[cardTitle="true"] {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     color: #1F2329;
 }
 QLabel[weak="true"] {

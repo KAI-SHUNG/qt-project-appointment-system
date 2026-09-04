@@ -1,6 +1,7 @@
 #include "doctorspage.h"
 #include "ui_doctorspage.h"
 #include "../datadefs.h"
+#include "../theme.h"
 #include "../dialogs/doctordialog.h"
 #include "../dialogs/timeslotdialog.h"
 #include "../persistence.h"
@@ -19,10 +20,10 @@ DoctorsPage::DoctorsPage(Hospital& hospital, QWidget* parent)
 
     ui->btnAdd->setProperty("primary", true);
     ui->tblDoctors->verticalHeader()->setVisible(false);
-    ui->tblDoctors->setRowHeight(0, 44);
+    ui->tblDoctors->setRowHeight(0, Theme::TableRowHeight);
     ui->tblDoctors->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tblDoctors->horizontalHeader()->setSectionResizeMode(7, QHeaderView::Fixed);
-    ui->tblDoctors->horizontalHeader()->resizeSection(7, 170);
+    ui->tblDoctors->horizontalHeader()->resizeSection(7, Theme::ActionsColumnWidth);
     ui->tblDoctors->setSelectionMode(QAbstractItemView::SingleSelection);
 
     connect(ui->btnAdd, &QPushButton::clicked, this, &DoctorsPage::onAdd);

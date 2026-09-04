@@ -6,9 +6,30 @@
 #include <QLabel>
 #include <QListWidgetItem>
 #include <QMetaObject>
+#include <QStyle>
+#include <QStyledItemDelegate>
 #include <QVBoxLayout>
 
 #include "pages/doctorspage.h"
+
+namespace {
+
+// 唯一例外：Qt 不允许 QSS 对 ::item 设置字重（font-weight 被静默忽略），
+// 选中加粗只能在此改 option.font。其余视觉一律在 resources/style.qss。
+class NavItemDelegate : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    void initStyleOption(QStyleOptionViewItem* option, const QModelIndex& index) const override
+    {
+        QStyledItemDelegate::initStyleOption(option, index);
+        if (option->state.testFlag(QStyle::State_Selected))
+            option->font.setBold(true);
+    }
+};
+
+} // namespace
 
 MainWindow::MainWindow(QWidget* parent)
     : QWidget(parent), ui(new Ui::MainWindow), hospital_()
@@ -23,10 +44,11 @@ MainWindow::MainWindow(QWidget* parent)
                               QStringLiteral("预约挂号"), QStringLiteral("预约查询") };
     for (const QString& text : nav) {
         auto* item = new QListWidgetItem(text);
-        item->setSizeHint(QSize(0, 44));
+        // 行高由 style.qss 的 #navList::item 决定，勿在此 setSizeHint 覆盖
         ui->navList->addItem(item);
     }
     ui->navList->setCurrentRow(0);
+    ui->navList->setItemDelegate(new NavItemDelegate(ui->navList));
 
     buildPages();
 
@@ -76,7 +98,7 @@ QWidget* MainWindow::makePlaceholderPage(const QString& text)
     lay->setContentsMargins(24, 20, 24, 20);
     auto* label = new QLabel(text, page);
     label->setAlignment(Qt::AlignCenter);
-    label->setStyleSheet(QStringLiteral("font-size:22px; font-weight:600; color:#9AA0A6;"));
+    label->setProperty("placeholder", true); // 样式见 style.qss 的 QLabel[placeholder="true"]
     lay->addWidget(label);
     return page;
 }
