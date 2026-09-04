@@ -100,6 +100,12 @@ QPushButton[danger="true"]:hover {
     color: #F44336;
 }
 
+/* Timeslot action buttons must keep all four Chinese characters visible. */
+TimeslotDialog QPushButton#btnAdd,
+TimeslotDialog QPushButton#btnRemove {
+    min-width: 72px;
+}
+
 QPushButton[link="true"] {
     border: none;
     background: transparent;
