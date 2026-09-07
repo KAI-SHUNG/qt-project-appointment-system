@@ -3,6 +3,7 @@
 #include <QDataStream>
 #include <QDir>
 #include <QFile>
+#include <QSaveFile>
 #include <stdexcept>
 
 Hospital::Hospital(const QString& doctorsPath,
@@ -60,19 +61,27 @@ Doctor* Hospital::findDoctor(const QString& doctorId)
     return nullptr;
 }
 
-void Hospital::addAppointment(const Appointment& appointment)
+void Hospital::addAppointment(const Appointment& appointment, bool allowPast)
 {
-    if (findDoctor(appointment.getDoctorId()) == nullptr) {
+    Doctor* doctor = findDoctor(appointment.getDoctorId());
+    if (doctor == nullptr) {
         throw std::invalid_argument("医生不存在，无法添加预约");
+    }
+    if (doctor->getDepartment() == QStringLiteral("妇产科")
+        && appointment.getPatient().getGender() != Human::Gender::Female) {
+        throw std::invalid_argument("妇产科预约仅接受女性患者");
+    }
+    if (!allowPast && appointment.hasStarted()) {
+        throw std::invalid_argument("预约时段已开始，请选择当前时间之后的时段");
     }
     if (findAppointment(appointment.getAppointId()) != nullptr) {
         throw std::invalid_argument("预约号已存在：" + appointment.getAppointId().toStdString());
     }
-    if (hasPatientAppointment(appointment.getPatient().getPatientId())) {
-        throw std::invalid_argument("该身份证号已存在预约，请勿重复预约");
+    if (hasPatientAppointment(appointment.getPatient().getPatientId(),
+                              appointment.getDate(), appointment.getTimeslot())) {
+        throw std::invalid_argument("该身份证号在此日期和时段已有预约，请勿重复预约");
     }
 
-    Doctor* doctor = findDoctor(appointment.getDoctorId());
     bool    inSchedule = false;
     for (const Timeslot& slot : doctor->getSchedule()) {
         if (slot == appointment.getTimeslot()) {
@@ -145,11 +154,15 @@ int Hospital::countAppointments(const QString& doctorId, const QDate& date,
     return count;
 }
 
-bool Hospital::hasPatientAppointment(const QString& patientId) const
+bool Hospital::hasPatientAppointment(const QString& patientId, const QDate& date,
+                                     const Timeslot& timeslot) const
 {
     for (const Appointment& appointment : appointments) {
-        if (appointment.getPatient().getPatientId() == patientId)
+        if (appointment.getPatient().getPatientId() == patientId
+            && appointment.getDate() == date
+            && appointment.getTimeslot() == timeslot) {
             return true;
+        }
     }
     return false;
 }
@@ -170,6 +183,39 @@ QString Hospital::nextAppointmentId(const QDate& date) const
             return id;
     }
     return {};
+}
+
+bool Hospital::importData(const QString& doctorsPath, const QString& appointmentsPath)
+{
+    if (!QFile::exists(doctorsPath) || !QFile::exists(appointmentsPath))
+        return false;
+
+    Hospital imported(doctorsPath, appointmentsPath);
+    if (!imported.load())
+        return false;
+
+    const QList<Doctor> oldDoctors = doctors;
+    const QList<Appointment> oldAppointments = appointments;
+    doctors = imported.doctors;
+    appointments = imported.appointments;
+    if (save())
+        return true;
+
+    doctors = oldDoctors;
+    appointments = oldAppointments;
+    return false;
+}
+
+bool Hospital::exportData(const QString& outputDirectory) const
+{
+    if (outputDirectory.isEmpty() || !QDir().mkpath(outputDirectory))
+        return false;
+
+    Hospital exported(QDir(outputDirectory).filePath(QStringLiteral("doctors.dat")),
+                      QDir(outputDirectory).filePath(QStringLiteral("appointments.dat")));
+    exported.doctors = doctors;
+    exported.appointments = appointments;
+    return exported.save();
 }
 
 bool Hospital::load()
@@ -335,6 +381,10 @@ bool Hospital::loadAppointments()
         Doctor* doctor = findDoctor(doctorId);
         if (doctor == nullptr)
             continue;
+        if (doctor->getDepartment() == QStringLiteral("妇产科")
+            && static_cast<Human::Gender>(gender) != Human::Gender::Female) {
+            continue;
+        }
 
         Patient patient(
             name,
@@ -365,7 +415,7 @@ bool Hospital::loadAppointments()
 
 bool Hospital::saveDoctors() const
 {
-    QFile file(doctorsFilePath);
+    QSaveFile file(doctorsFilePath);
     if (!file.open(QIODevice::WriteOnly))
         return false;
     QDataStream out(&file);
@@ -392,12 +442,12 @@ bool Hospital::saveDoctors() const
         }
     }
 
-    return out.status() == QDataStream::Ok;
+    return out.status() == QDataStream::Ok && file.commit();
 }
 
 bool Hospital::saveAppointments() const
 {
-    QFile file(appointmentsFilePath);
+    QSaveFile file(appointmentsFilePath);
     if (!file.open(QIODevice::WriteOnly))
         return false;
     QDataStream out(&file);
@@ -426,5 +476,5 @@ bool Hospital::saveAppointments() const
         out << timeslot.getCapability();
     }
 
-    return out.status() == QDataStream::Ok;
+    return out.status() == QDataStream::Ok && file.commit();
 }

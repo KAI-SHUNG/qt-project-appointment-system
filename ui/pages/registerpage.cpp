@@ -4,6 +4,7 @@
 
 #include <QBrush>
 #include <QCompleter>
+#include <QDateTime>
 #include <QLineEdit>
 #include <QListWidgetItem>
 #include <QMessageBox>
@@ -112,6 +113,7 @@ void RegisterPage::refreshSlots()
     }
 
     const QDate date     = ui->calendar->selectedDate();
+    const QDateTime now  = QDateTime::currentDateTime();
     const auto& schedule = doctor->getSchedule();
     for (int i = 0; i < schedule.size(); ++i) {
         const Timeslot& slot = schedule.at(i);
@@ -120,15 +122,20 @@ void RegisterPage::refreshSlots()
 
         const int remaining = slot.getCapability()
                               - hospital_.countAppointments(doctor->getDoctorId(), date, slot);
+        const bool hasStarted = QDateTime(date, slot.getStartTime()) < now;
         auto*     item      = new QListWidgetItem(
-            QStringLiteral("%1–%2    剩余 %3 个号")
-                .arg(slot.getStartTime().toString(QStringLiteral("HH:mm")),
-                     slot.getEndTime().toString(QStringLiteral("HH:mm")))
-                .arg(qMax(remaining, 0)),
+            hasStarted
+                ? QStringLiteral("%1–%2    已过预约时间")
+                      .arg(slot.getStartTime().toString(QStringLiteral("HH:mm")),
+                           slot.getEndTime().toString(QStringLiteral("HH:mm")))
+                : QStringLiteral("%1–%2    剩余 %3 个号")
+                      .arg(slot.getStartTime().toString(QStringLiteral("HH:mm")),
+                           slot.getEndTime().toString(QStringLiteral("HH:mm")))
+                      .arg(qMax(remaining, 0)),
             ui->lstSlots);
         item->setData(Qt::UserRole, i);
         item->setTextAlignment(Qt::AlignVCenter);
-        if (remaining <= 0) {
+        if (hasStarted || remaining <= 0) {
             item->setForeground(QBrush(QColor(QStringLiteral("#9AA1AA"))));
             item->setBackground(QBrush(QColor(QStringLiteral("#F5F6F8"))));
             item->setFlags(item->flags() & ~Qt::ItemIsEnabled & ~Qt::ItemIsSelectable);
@@ -219,6 +226,12 @@ void RegisterPage::submitAppointment()
     }
 
     const Timeslot                    slot = doctor->getSchedule().at(slotIndex);
+    if (QDateTime(date, slot.getStartTime()) < QDateTime::currentDateTime()) {
+        QMessageBox::warning(this, QStringLiteral("预约挂号"),
+                             QStringLiteral("该预约时段已经开始，请重新选择。"));
+        refreshSlots();
+        return;
+    }
     const Patient                     patient(name, ui->spnAge->value(),
                                               ui->cmbGender->currentIndex() == 0 ? Human::Gender::Male : Human::Gender::Female,
                                               patientId, phone);

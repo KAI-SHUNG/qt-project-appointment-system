@@ -1,4 +1,5 @@
 #include "src/hospital.h"
+#include <QDir>
 #include <QTemporaryDir>
 #include <cassert>
 #include <stdexcept>
@@ -138,14 +139,24 @@ void testHospitalAppointmentRules()
     assert(throwsOnAdd(h, full));
     assert(h.countAppointments("D201", date, tight) == 1);
 
-    // 4) a patient id may not book twice
+    // 4) a patient id may not book the same date and timeslot twice
     Timeslot roomy = slotOf(date, 5);
     h.addDoctor(makeDoctorWithSlot("D202", roomy));
     Appointment one("A5", *h.findDoctor("D202"), makePatient("pid-5"), "s", date, roomy);
     h.addAppointment(one);
     Appointment again("A6", *h.findDoctor("D202"), makePatient("pid-5"), "s", date, roomy);
     assert(throwsOnAdd(h, again));
-    assert(h.hasPatientAppointment("pid-5"));
+    assert(h.hasPatientAppointment("pid-5", date, roomy));
+
+    // The same patient may book a different date or a different timeslot.
+    const QDate otherDate = date.addDays(7);
+    h.addAppointment(Appointment("A6", *h.findDoctor("D202"), makePatient("pid-5"),
+                                 "s", otherDate, roomy));
+    const Timeslot later(static_cast<Qt::DayOfWeek>(date.dayOfWeek()),
+                         QTime(11, 0), QTime(12, 0), 5);
+    h.findDoctor("D202")->addTimeslot(later);
+    h.addAppointment(Appointment("A8", *h.findDoctor("D202"), makePatient("pid-5"),
+                                 "s", date, later));
 
     // 5) appointment id must be unique
     Appointment dupId("A7", *h.findDoctor("D202"), makePatient("pid-7"), "s", date, roomy);
@@ -156,6 +167,22 @@ void testHospitalAppointmentRules()
     assert(h.removeAppointment("A7"));
     assert(h.findAppointment("A7") == nullptr);
     assert(!h.removeAppointment("A7"));
+
+    // 6) obstetrics appointments accept female patients only
+    h.addDoctor(Doctor("赵医生", 40, Human::Gender::Female, "D203",
+                       "主治医师", "妇产科"));
+    h.findDoctor("D203")->addTimeslot(roomy);
+    const Patient malePatient("王先生", 30, Human::Gender::Male,
+                              "pid-male", "13800000000");
+    assert(throwsOnAdd(h, Appointment("A9", *h.findDoctor("D203"), malePatient,
+                                      "s", date, roomy)));
+
+    // 7) a new appointment may not target an already-started timeslot
+    const QDate pastDate = QDate::currentDate().addDays(-1);
+    const Timeslot pastSlot = slotOf(pastDate, 5);
+    h.addDoctor(makeDoctorWithSlot("D204", pastSlot));
+    assert(throwsOnAdd(h, Appointment("A10", *h.findDoctor("D204"),
+                                      makePatient("pid-past"), "s", pastDate, pastSlot)));
 
     qDebug("TestHospitalAppointmentRules Passed.");
 }
@@ -232,6 +259,8 @@ void testAppointmentCompletionIncludesDateAndEndTime()
     assert(!appointment.hasEnded(QDateTime(date, QTime(9, 30))));
     assert(appointment.hasEnded(QDateTime(date, QTime(10, 0))));
     assert(appointment.hasEnded(QDateTime(date.addDays(1), QTime(0, 0))));
+    assert(!appointment.hasStarted(QDateTime(date, QTime(9, 0))));
+    assert(appointment.hasStarted(QDateTime(date, QTime(9, 1))));
 
     qDebug("TestAppointmentCompletionIncludesDateAndEndTime Passed.");
 }
@@ -264,6 +293,50 @@ void testAppointmentIdUsesTwoDigitYear()
     qDebug("TestAppointmentIdUsesTwoDigitYear Passed.");
 }
 
+void testHospitalImportExport()
+{
+    QTemporaryDir dir;
+    const QString sourceDir = dir.filePath("source");
+    const QString currentDir = dir.filePath("current");
+    const QString exportDir = dir.filePath("exported");
+    QDir().mkpath(sourceDir);
+    QDir().mkpath(currentDir);
+
+    const QDate date = futureDate();
+    const Timeslot slot = slotOf(date, 5);
+    Hospital source(QDir(sourceDir).filePath("doctors.dat"),
+                    QDir(sourceDir).filePath("appointments.dat"));
+    source.addDoctor(makeDoctorWithSlot("D600", slot));
+    source.addAppointment(Appointment("A600", *source.findDoctor("D600"),
+                                      makePatient("P600"), "复查", date, slot));
+    assert(source.save());
+
+    Hospital current(QDir(currentDir).filePath("doctors.dat"),
+                     QDir(currentDir).filePath("appointments.dat"));
+    assert(current.importData(QDir(sourceDir).filePath("doctors.dat"),
+                              QDir(sourceDir).filePath("appointments.dat")));
+    assert(current.getDoctors().size() == 1);
+    assert(current.getAppointments().size() == 1);
+    assert(current.exportData(exportDir));
+
+    Hospital exported(QDir(exportDir).filePath("doctors.dat"),
+                      QDir(exportDir).filePath("appointments.dat"));
+    assert(exported.load());
+    assert(exported.findDoctor("D600") != nullptr);
+    assert(exported.findAppointment("A600") != nullptr);
+
+    // Existing files must be atomically replaced on a confirmed re-export.
+    current.addDoctor(makeDoctorWithSlot("D601", slot));
+    assert(current.exportData(exportDir));
+    Hospital overwritten(QDir(exportDir).filePath("doctors.dat"),
+                         QDir(exportDir).filePath("appointments.dat"));
+    assert(overwritten.load());
+    assert(overwritten.getDoctors().size() == 2);
+    assert(overwritten.findDoctor("D601") != nullptr);
+
+    qDebug("TestHospitalImportExport Passed.");
+}
+
 void testHospital()
 {
     qDebug("=== Testing Hospital ===");
@@ -276,6 +349,7 @@ void testHospital()
     testAppointmentCompletionIncludesDateAndEndTime();
     testHospitalChangeAppointmentId();
     testAppointmentIdUsesTwoDigitYear();
+    testHospitalImportExport();
 
     qDebug("=== Hospital Test Passed ===");
 }

@@ -92,7 +92,7 @@ void AppointmentDialog::refreshSlots()
         const Timeslot& slot = schedule.at(index);
         if (static_cast<int>(slot.getDayOfWeek()) != date.dayOfWeek())
             continue;
-        if (QDateTime(date, slot.getEndTime()) <= now)
+        if (QDateTime(date, slot.getStartTime()) < now)
             continue;
 
         int occupied = hospital_.countAppointments(doctor_->getDoctorId(), date, slot);

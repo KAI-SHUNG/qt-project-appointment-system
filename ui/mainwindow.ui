@@ -93,6 +93,33 @@
                                             </property>
                                         </widget>
                                     </item>
+                                    <item>
+                                        <layout class="QHBoxLayout" name="dataActionsLayout">
+                                            <property name="spacing">
+                                                <number>8</number>
+                                            </property>
+                                            <property name="leftMargin">
+                                                <number>10</number>
+                                            </property>
+                                            <property name="rightMargin">
+                                                <number>10</number>
+                                            </property>
+                                            <item>
+                                                <widget class="QPushButton" name="btnImportData">
+                                                    <property name="text">
+                                                        <string>导入数据</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+                                            <item>
+                                                <widget class="QPushButton" name="btnExportData">
+                                                    <property name="text">
+                                                        <string>导出数据</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+                                        </layout>
+                                    </item>
                                 </layout>
                             </widget>
                         </item>

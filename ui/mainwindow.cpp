@@ -3,8 +3,12 @@
 #include "ui_mainwindow.h"
 
 #include <QFile>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QListWidgetItem>
+#include <QMessageBox>
 #include <QMetaObject>
+#include <QPushButton>
 #include <QStyle>
 #include <QStyledItemDelegate>
 
@@ -56,6 +60,8 @@ MainWindow::MainWindow(QWidget* parent)
     buildPages();
 
     connect(ui->navList, &QListWidget::currentRowChanged, this, &MainWindow::onNavChanged);
+    connect(ui->btnImportData, &QPushButton::clicked, this, &MainWindow::importData);
+    connect(ui->btnExportData, &QPushButton::clicked, this, &MainWindow::exportData);
 
     QFile qss(":/style.qss");
     if (qss.open(QIODevice::ReadOnly)) {
@@ -108,4 +114,85 @@ void MainWindow::onNavChanged(int index)
             QMetaObject::invokeMethod(page, "refresh", Qt::DirectConnection);
         }
     }
+}
+
+void MainWindow::refreshPages()
+{
+    for (int index = 0; index < ui->contentStack->count(); ++index) {
+        if (QWidget* page = ui->contentStack->widget(index))
+            QMetaObject::invokeMethod(page, "refresh", Qt::DirectConnection);
+    }
+}
+
+void MainWindow::importData()
+{
+    const QString doctorsPath = QFileDialog::getOpenFileName(
+        this, QStringLiteral("选择医生数据文件"), {},
+        QStringLiteral("医生数据 (doctors.dat *.dat);;所有文件 (*)"));
+    if (doctorsPath.isEmpty())
+        return;
+
+    const QString appointmentsPath = QFileDialog::getOpenFileName(
+        this, QStringLiteral("选择预约信息文件"), QFileInfo(doctorsPath).absolutePath(),
+        QStringLiteral("预约数据 (appointments.dat *.dat);;所有文件 (*)"));
+    if (appointmentsPath.isEmpty())
+        return;
+
+    if (QMessageBox::question(
+            this, QStringLiteral("确认导入"),
+            QStringLiteral("导入后将替换当前医生和预约数据，是否继续？"))
+        != QMessageBox::Yes) {
+        return;
+    }
+
+    if (!hospital_.importData(doctorsPath, appointmentsPath)) {
+        QMessageBox::warning(this, QStringLiteral("导入失败"),
+                             QStringLiteral("数据文件无法读取或保存，请确认选择了正确的医生和预约文件。"));
+        return;
+    }
+
+    refreshPages();
+    QMessageBox::information(
+        this, QStringLiteral("导入成功"),
+        QStringLiteral("已导入 %1 位医生和 %2 条预约。")
+            .arg(hospital_.getDoctors().size())
+            .arg(hospital_.getAppointments().size()));
+}
+
+void MainWindow::exportData()
+{
+    const QString outputDirectory = QFileDialog::getExistingDirectory(
+        this, QStringLiteral("选择数据导出文件夹"));
+    if (outputDirectory.isEmpty())
+        return;
+
+    const QDir outputDir(outputDirectory);
+    const bool doctorsExist = QFile::exists(outputDir.filePath(QStringLiteral("doctors.dat")));
+    const bool appointmentsExist =
+        QFile::exists(outputDir.filePath(QStringLiteral("appointments.dat")));
+    if (doctorsExist || appointmentsExist) {
+        QStringList existingFiles;
+        if (doctorsExist)
+            existingFiles.append(QStringLiteral("doctors.dat"));
+        if (appointmentsExist)
+            existingFiles.append(QStringLiteral("appointments.dat"));
+        if (QMessageBox::question(
+                this, QStringLiteral("确认覆盖"),
+                QStringLiteral("目标文件夹已存在以下文件：\n%1\n\n选择“是”将覆盖原文件，是否继续？")
+                    .arg(existingFiles.join(QLatin1Char('\n'))),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+            != QMessageBox::Yes) {
+            return;
+        }
+    }
+
+    if (!hospital_.exportData(outputDirectory)) {
+        QMessageBox::warning(this, QStringLiteral("导出失败"),
+                             QStringLiteral("无法写入所选文件夹。"));
+        return;
+    }
+
+    QMessageBox::information(
+        this, QStringLiteral("导出成功"),
+        QStringLiteral("医生和预约数据已导出到：\n%1").arg(QDir::toNativeSeparators(outputDirectory)));
 }

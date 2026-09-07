@@ -22,6 +22,7 @@ public:
     QString  getSymptom() const;
 
     bool hasEnded(const QDateTime& reference = QDateTime::currentDateTime()) const;
+    bool hasStarted(const QDateTime& reference = QDateTime::currentDateTime()) const;
 
     void setDate(const QDate& newDate);
     void setTimeslot(const Timeslot& newTimeslot);

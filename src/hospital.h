@@ -16,7 +16,7 @@ public:
     bool    removeDoctor(const QString& doctorId); // cascades its appointments
     Doctor* findDoctor(const QString& doctorId);
     // Appointment (rule violations throw std::invalid_argument)
-    void         addAppointment(const Appointment& appointment);
+    void         addAppointment(const Appointment& appointment, bool allowPast = false);
     bool         removeAppointment(const QString& appointId);
     Appointment* findAppointment(const QString& appointId);
     bool         changeAppointmentId(const QString& currentId, const QString& newId);
@@ -25,8 +25,13 @@ public:
     int  countAppointments(const QString& doctorId,
                            const QDate&    date,
                            const Timeslot& timeslot) const;
-    bool hasPatientAppointment(const QString& patientId) const;
+    bool hasPatientAppointment(const QString& patientId,
+                               const QDate& date,
+                               const Timeslot& timeslot) const;
     QString nextAppointmentId(const QDate& date) const;
+
+    bool importData(const QString& doctorsPath, const QString& appointmentsPath);
+    bool exportData(const QString& outputDirectory) const;
 
     bool load();
     bool save() const;

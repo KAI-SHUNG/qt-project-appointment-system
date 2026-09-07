@@ -23,9 +23,12 @@ public:
 
 private slots:
     void onNavChanged(int index);
+    void importData();
+    void exportData();
 
 private:
     void buildPages();
+    void refreshPages();
 
 private:
     Ui::MainWindow* ui;

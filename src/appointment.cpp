@@ -45,6 +45,11 @@ bool Appointment::hasEnded(const QDateTime& reference) const
     return QDateTime(date, timeslot.getEndTime()) <= reference;
 }
 
+bool Appointment::hasStarted(const QDateTime& reference) const
+{
+    return QDateTime(date, timeslot.getStartTime()) < reference;
+}
+
 void Appointment::setAppointId(const QString& newAppointId)
 {
     appointId = newAppointId;
