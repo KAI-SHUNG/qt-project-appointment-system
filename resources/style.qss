@@ -303,11 +303,15 @@ QPushButton[link="true"][danger="true"]:hover {
 }
 
 QTableWidget#appointmentsTable,
+QTableWidget#tblDoctors,
 QTableWidget#appointmentsTable::item,
-QTableWidget#appointmentsTable QHeaderView::section {
+QTableWidget#tblDoctors::item,
+QTableWidget#appointmentsTable QHeaderView::section,
+QTableWidget#tblDoctors QHeaderView::section {
     font-size: 14px;
 }
-QTableWidget#appointmentsTable::item {
+QTableWidget#appointmentsTable::item,
+QTableWidget#tblDoctors::item {
     padding: 3px 4px;
 }
 

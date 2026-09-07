@@ -10,7 +10,10 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QResizeEvent>
+#include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QTimer>
 #include <stdexcept>
 
 DoctorsPage::DoctorsPage(Hospital& hospital, QWidget* parent)
@@ -20,10 +23,7 @@ DoctorsPage::DoctorsPage(Hospital& hospital, QWidget* parent)
 
     ui->btnAdd->setProperty("primary", true);
     ui->tblDoctors->verticalHeader()->setVisible(false);
-    ui->tblDoctors->setRowHeight(0, Theme::TableRowHeight);
-    ui->tblDoctors->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tblDoctors->horizontalHeader()->setSectionResizeMode(7, QHeaderView::Fixed);
-    ui->tblDoctors->horizontalHeader()->resizeSection(7, Theme::ActionsColumnWidth);
+    ui->tblDoctors->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->tblDoctors->setSelectionMode(QAbstractItemView::SingleSelection);
 
     connect(ui->btnAdd, &QPushButton::clicked, this, &DoctorsPage::onAdd);
@@ -53,6 +53,12 @@ void DoctorsPage::refresh()
 {
     fillDeptFilter();
     populateTable();
+}
+
+void DoctorsPage::resizeEvent(QResizeEvent* event)
+{
+    QWidget::resizeEvent(event);
+    QTimer::singleShot(0, this, &DoctorsPage::adjustColumnWidths);
 }
 
 QString DoctorsPage::currentDoctorId() const
@@ -134,10 +140,54 @@ void DoctorsPage::populateTable()
                 item->setToolTip(scheduleText(d));
             ui->tblDoctors->setItem(r, c, item);
         }
+        ui->tblDoctors->setRowHeight(r, Theme::TableRowHeight);
         addRowActions(r, d.getDoctorId());
     }
 
     ui->lblCount->setText(QStringLiteral("共 %1 位专家").arg(matched.size()));
+    QTimer::singleShot(0, this, &DoctorsPage::adjustColumnWidths);
+}
+
+void DoctorsPage::adjustColumnWidths()
+{
+    QTableWidget* table = ui->tblDoctors;
+    table->resizeColumnsToContents();
+
+    QList<int> visibleColumns;
+    int contentWidth = 0;
+    for (int column = 0; column < table->columnCount(); ++column) {
+        if (table->isColumnHidden(column))
+            continue;
+        visibleColumns.append(column);
+        contentWidth += table->columnWidth(column);
+    }
+
+    int remaining = table->viewport()->width() - contentWidth;
+    if (remaining <= 0)
+        return;
+
+    const int actionColumn = table->columnCount() - 1;
+    int expandableWidth = contentWidth - table->columnWidth(actionColumn);
+    for (const int column : visibleColumns) {
+        if (column == actionColumn)
+            continue;
+        const int originalWidth = table->columnWidth(column);
+        const int addition = expandableWidth > 0
+                                 ? remaining * originalWidth / expandableWidth
+                                 : 0;
+        table->setColumnWidth(column, originalWidth + addition);
+        remaining -= addition;
+        expandableWidth -= originalWidth;
+    }
+
+    if (remaining > 0) {
+        for (auto it = visibleColumns.crbegin(); it != visibleColumns.crend(); ++it) {
+            if (*it != actionColumn) {
+                table->setColumnWidth(*it, table->columnWidth(*it) + remaining);
+                break;
+            }
+        }
+    }
 }
 
 QString DoctorsPage::scheduleText(const Doctor& doctor) const

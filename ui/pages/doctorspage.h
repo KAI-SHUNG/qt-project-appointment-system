@@ -11,6 +11,8 @@ class DoctorsPage;
 }
 QT_END_NAMESPACE
 
+class QResizeEvent;
+
 // 医生管理：列表 / 过滤查询 / 新增编辑删除 / 出诊排班
 class DoctorsPage : public QWidget {
     Q_OBJECT
@@ -21,6 +23,9 @@ public:
 
 public slots:
     void refresh();
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 
 signals:
     // 请求跳转到“预约挂号”并预选该医生
@@ -34,6 +39,7 @@ private slots:
 private:
     void   fillDeptFilter();
     void   populateTable();
+    void   adjustColumnWidths();
     void   addRowActions(int row, const QString& doctorId);
     QString scheduleText(const Doctor& doctor) const;
     QString currentDoctorId() const;
