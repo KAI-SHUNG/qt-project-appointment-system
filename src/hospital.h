@@ -19,6 +19,7 @@ public:
     void         addAppointment(const Appointment& appointment);
     bool         removeAppointment(const QString& appointId);
     Appointment* findAppointment(const QString& appointId);
+    bool         changeAppointmentId(const QString& currentId, const QString& newId);
 
     // Query helpers
     int  countAppointments(const QString& doctorId,

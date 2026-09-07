@@ -16,7 +16,7 @@ class AppointmentDialog : public QDialog {
     Q_OBJECT
 public:
     AppointmentDialog(Hospital& hospital, const Appointment& appointment,
-                      bool editable, QWidget* parent = nullptr);
+                      bool canModify, QWidget* parent = nullptr);
     ~AppointmentDialog() override;
 
     QDate selectedDate() const;
@@ -25,6 +25,7 @@ public:
 
 private slots:
     void refreshSlots();
+    void enterEditMode();
     void acceptChanges();
 
 private:
@@ -32,7 +33,9 @@ private:
     Hospital& hospital_;
     const Appointment& appointment_;
     const Doctor* doctor_;
-    bool editable_;
+    bool canModify_;
+    bool editable_ = false;
+    QPushButton* modifyButton_ = nullptr;
     QPushButton* confirmButton_;
 };
 

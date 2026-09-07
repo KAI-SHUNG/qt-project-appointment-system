@@ -13,16 +13,16 @@
 #include <QVBoxLayout>
 
 AppointmentDialog::AppointmentDialog(Hospital& hospital, const Appointment& appointment,
-                                     bool editable, QWidget* parent)
+                                     bool canModify, QWidget* parent)
     : QDialog(parent),
       ui(new Ui::AppointmentDialog),
       hospital_(hospital),
       appointment_(appointment),
       doctor_(hospital.findDoctor(appointment.getDoctorId())),
-      editable_(editable)
+      canModify_(canModify)
 {
     ui->setupUi(this);
-    setWindowTitle(editable ? QStringLiteral("改约") : QStringLiteral("预约详情"));
+    setWindowTitle(QStringLiteral("预约详情"));
 
     const Patient patient = appointment.getPatient();
     ui->lblAppointmentId->setText(appointment.getAppointId());
@@ -38,26 +38,27 @@ AppointmentDialog::AppointmentDialog(Hospital& hospital, const Appointment& appo
             .arg(patient.getAge()));
     ui->lblPatientId->setText(patient.getPatientId());
     ui->lblPhone->setText(patient.getPhoneNumber());
+    // 只读详情必须先扩展日期范围再赋值，否则 QDateEdit 会把历史日期夹到今天。
+    ui->dateAppointment->setMinimumDate(qMin(QDate::currentDate(), appointment.getDate()));
+    ui->dateAppointment->setMaximumDate(qMax(QDate::currentDate().addDays(28),
+                                              appointment.getDate()));
     ui->dateAppointment->setDate(appointment.getDate());
-    ui->dateAppointment->setMinimumDate(QDate::currentDate());
-    ui->dateAppointment->setMaximumDate(QDate::currentDate().addDays(28));
     ui->edtSymptom->setPlainText(appointment.getSymptom());
 
-    ui->buttonBox->setStandardButtons(
-        editable ? QDialogButtonBox::Save | QDialogButtonBox::Cancel
-                 : QDialogButtonBox::Close);
-    confirmButton_ = ui->buttonBox->button(
-        editable ? QDialogButtonBox::Save : QDialogButtonBox::Close);
-    confirmButton_->setText(editable ? QStringLiteral("保存改约") : QStringLiteral("关闭"));
-    confirmButton_->setProperty("primary", editable);
-    ui->dateAppointment->setEnabled(editable);
-    ui->cmbSlot->setEnabled(editable);
-    ui->edtSymptom->setReadOnly(!editable);
+    ui->buttonBox->setStandardButtons(QDialogButtonBox::NoButton);
+    modifyButton_ = ui->buttonBox->addButton(QStringLiteral("修改"),
+                                              QDialogButtonBox::ActionRole);
+    modifyButton_->setEnabled(canModify_);
+    if (!canModify_)
+        modifyButton_->setToolTip(QStringLiteral("已完成的预约不能修改"));
+    confirmButton_ = modifyButton_;
+    ui->dateAppointment->setEnabled(false);
+    ui->cmbSlot->setEnabled(false);
+    ui->edtSymptom->setReadOnly(true);
 
     connect(ui->dateAppointment, &QDateEdit::dateChanged,
             this, &AppointmentDialog::refreshSlots);
-    if (editable)
-        connect(confirmButton_, &QPushButton::clicked, this, &AppointmentDialog::acceptChanges);
+    connect(modifyButton_, &QPushButton::clicked, this, &AppointmentDialog::enterEditMode);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     refreshSlots();
 }
@@ -75,11 +76,23 @@ void AppointmentDialog::refreshSlots()
         return;
     }
 
+    if (!editable_) {
+        const Timeslot slot = appointment_.getTimeslot();
+        ui->cmbSlot->addItem(
+            QStringLiteral("%1-%2")
+                .arg(slot.getStartTime().toString(QStringLiteral("HH:mm")),
+                     slot.getEndTime().toString(QStringLiteral("HH:mm"))));
+        return;
+    }
+
     const QDate date = ui->dateAppointment->date();
+    const QDateTime now = QDateTime::currentDateTime();
     const auto& schedule = doctor_->getSchedule();
     for (int index = 0; index < schedule.size(); ++index) {
         const Timeslot& slot = schedule.at(index);
         if (static_cast<int>(slot.getDayOfWeek()) != date.dayOfWeek())
+            continue;
+        if (QDateTime(date, slot.getEndTime()) <= now)
             continue;
 
         int occupied = hospital_.countAppointments(doctor_->getDoctorId(), date, slot);
@@ -98,7 +111,31 @@ void AppointmentDialog::refreshSlots()
         if (date == appointment_.getDate() && slot == appointment_.getTimeslot())
             ui->cmbSlot->setCurrentIndex(ui->cmbSlot->count() - 1);
     }
-    confirmButton_->setEnabled(!editable_ || ui->cmbSlot->count() > 0);
+    confirmButton_->setEnabled(ui->cmbSlot->count() > 0);
+}
+
+void AppointmentDialog::enterEditMode()
+{
+    if (!canModify_)
+        return;
+
+    editable_ = true;
+    ui->buttonBox->removeButton(modifyButton_);
+    modifyButton_->deleteLater();
+    modifyButton_ = nullptr;
+    ui->buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+    confirmButton_ = ui->buttonBox->button(QDialogButtonBox::Save);
+    confirmButton_->setText(QStringLiteral("保存修改"));
+    ui->buttonBox->button(QDialogButtonBox::Cancel)->setText(QStringLiteral("取消"));
+    confirmButton_->setProperty("primary", true);
+
+    ui->dateAppointment->setMinimumDate(QDate::currentDate());
+    ui->dateAppointment->setMaximumDate(QDate::currentDate().addDays(28));
+    ui->dateAppointment->setEnabled(true);
+    ui->cmbSlot->setEnabled(true);
+    ui->edtSymptom->setReadOnly(false);
+    connect(confirmButton_, &QPushButton::clicked, this, &AppointmentDialog::acceptChanges);
+    refreshSlots();
 }
 
 void AppointmentDialog::acceptChanges()
@@ -111,6 +148,18 @@ void AppointmentDialog::acceptChanges()
     if (ui->edtSymptom->toPlainText().trimmed().isEmpty()) {
         QMessageBox::warning(this, QStringLiteral("改约"),
                              QStringLiteral("症状描述不能为空。"));
+        return;
+    }
+
+    const Timeslot slot = selectedTimeslot();
+    if (QMessageBox::question(
+            this, QStringLiteral("确认修改"),
+            QStringLiteral("确定将预约 %1 修改为 %2 %3-%4 吗？")
+                .arg(appointment_.getAppointId(),
+                     selectedDate().toString(QStringLiteral("yyyy-MM-dd")),
+                     slot.getStartTime().toString(QStringLiteral("HH:mm")),
+                     slot.getEndTime().toString(QStringLiteral("HH:mm"))))
+        != QMessageBox::Yes) {
         return;
     }
     accept();

@@ -8,6 +8,8 @@
 #include <QObject>
 
 class Appointment {
+    friend class Hospital;
+
 public:
     Appointment(const QString& appointId, const Doctor& doctor, const Patient& patient,
                 const QString& symptom, const QDate& date, const Timeslot& timeslot);
@@ -19,11 +21,15 @@ public:
     QDate    getDate() const;
     QString  getSymptom() const;
 
+    bool hasEnded(const QDateTime& reference = QDateTime::currentDateTime()) const;
+
     void setDate(const QDate& newDate);
     void setTimeslot(const Timeslot& newTimeslot);
     void setSymptom(const QString& newSymptom);
 
 private:
+    void setAppointId(const QString& newAppointId);
+
     QString appointId;
     QString doctorId;
 

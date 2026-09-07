@@ -219,6 +219,51 @@ void testHospitalLoadMissingFiles()
     qDebug("TestHospitalLoadMissingFiles Passed.");
 }
 
+void testAppointmentCompletionIncludesDateAndEndTime()
+{
+    const QDate date(2026, 9, 7);
+    const Timeslot slot(static_cast<Qt::DayOfWeek>(date.dayOfWeek()),
+                        QTime(9, 0), QTime(10, 0));
+    const Doctor doctor = makeDoctorWithSlot("D400", slot);
+    const Appointment appointment("A400", doctor, makePatient("P400"),
+                                  "复诊", date, slot);
+
+    assert(!appointment.hasEnded(QDateTime(date.addDays(-1), QTime(23, 59))));
+    assert(!appointment.hasEnded(QDateTime(date, QTime(9, 30))));
+    assert(appointment.hasEnded(QDateTime(date, QTime(10, 0))));
+    assert(appointment.hasEnded(QDateTime(date.addDays(1), QTime(0, 0))));
+
+    qDebug("TestAppointmentCompletionIncludesDateAndEndTime Passed.");
+}
+
+void testHospitalChangeAppointmentId()
+{
+    QTemporaryDir dir;
+    Hospital h(dir.filePath("doctors.dat"), dir.filePath("appointments.dat"));
+    const QDate date = futureDate();
+    const Timeslot slot = slotOf(date, 5);
+    h.addDoctor(makeDoctorWithSlot("D500", slot));
+    h.addAppointment(Appointment("A-OLD", *h.findDoctor("D500"), makePatient("P500"),
+                                 "复诊", date, slot));
+
+    assert(h.changeAppointmentId("A-OLD", "A-NEW"));
+    assert(h.findAppointment("A-OLD") == nullptr);
+    assert(h.findAppointment("A-NEW") != nullptr);
+    assert(!h.changeAppointmentId("A-MISSING", "A-OTHER"));
+
+    qDebug("TestHospitalChangeAppointmentId Passed.");
+}
+
+void testAppointmentIdUsesTwoDigitYear()
+{
+    QTemporaryDir dir;
+    Hospital h(dir.filePath("doctors.dat"), dir.filePath("appointments.dat"));
+
+    assert(h.nextAppointmentId(QDate(2026, 9, 7)) == "A260907001");
+
+    qDebug("TestAppointmentIdUsesTwoDigitYear Passed.");
+}
+
 void testHospital()
 {
     qDebug("=== Testing Hospital ===");
@@ -228,6 +273,9 @@ void testHospital()
     testHospitalAppointmentRules();
     testHospitalSaveLoadRoundTrip();
     testHospitalLoadMissingFiles();
+    testAppointmentCompletionIncludesDateAndEndTime();
+    testHospitalChangeAppointmentId();
+    testAppointmentIdUsesTwoDigitYear();
 
     qDebug("=== Hospital Test Passed ===");
 }

@@ -10,6 +10,8 @@ class AppointmentsPage;
 }
 QT_END_NAMESPACE
 
+class QResizeEvent;
+
 class AppointmentsPage : public QWidget {
     Q_OBJECT
 public:
@@ -20,15 +22,18 @@ public slots:
     void refresh();
     void selectDoctor(const QString& doctorId);
 
+protected:
+    void resizeEvent(QResizeEvent* event) override;
+
 private slots:
     void resetFilters();
 
 private:
     void fillDoctors();
     void populateTable();
-    void addRowActions(int row, const QString& appointmentId);
+    void adjustColumnWidths();
+    void addRowActions(int row, const QString& appointmentId, bool completed);
     void showDetails(const QString& appointmentId);
-    void editAppointment(const QString& appointmentId);
     void cancelAppointment(const QString& appointmentId);
 
     Ui::AppointmentsPage* ui;

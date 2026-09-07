@@ -40,6 +40,16 @@ QString Appointment::getSymptom() const
     return symptom;
 }
 
+bool Appointment::hasEnded(const QDateTime& reference) const
+{
+    return QDateTime(date, timeslot.getEndTime()) <= reference;
+}
+
+void Appointment::setAppointId(const QString& newAppointId)
+{
+    appointId = newAppointId;
+}
+
 void Appointment::setDate(const QDate& newDate)
 {
     date = newDate;

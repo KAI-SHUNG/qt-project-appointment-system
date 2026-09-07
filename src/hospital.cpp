@@ -118,6 +118,20 @@ Appointment* Hospital::findAppointment(const QString& appointId)
     return nullptr;
 }
 
+bool Hospital::changeAppointmentId(const QString& currentId, const QString& newId)
+{
+    Appointment* appointment = findAppointment(currentId);
+    if (!appointment)
+        return false;
+    if (currentId == newId)
+        return true;
+    if (newId.isEmpty() || findAppointment(newId))
+        return false;
+
+    appointment->setAppointId(newId);
+    return true;
+}
+
 int Hospital::countAppointments(const QString& doctorId, const QDate& date,
                                 const Timeslot& timeslot) const
 {
@@ -142,7 +156,7 @@ bool Hospital::hasPatientAppointment(const QString& patientId) const
 
 QString Hospital::nextAppointmentId(const QDate& date) const
 {
-    const QString prefix = QStringLiteral("A") + date.toString(QStringLiteral("yyyyMMdd"));
+    const QString prefix = QStringLiteral("A") + date.toString(QStringLiteral("yyMMdd"));
     for (int i = 1; i <= 999; ++i) {
         const QString id = prefix + QStringLiteral("%1").arg(i, 3, 10, QChar(0x30));
         bool exists = false;
