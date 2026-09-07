@@ -1,4 +1,5 @@
 #include "appointmentdialog.h"
+#include "ui_appointmentdialog.h"
 
 #include <QComboBox>
 #include <QDate>
@@ -14,88 +15,67 @@
 AppointmentDialog::AppointmentDialog(Hospital& hospital, const Appointment& appointment,
                                      bool editable, QWidget* parent)
     : QDialog(parent),
+      ui(new Ui::AppointmentDialog),
       hospital_(hospital),
       appointment_(appointment),
       doctor_(hospital.findDoctor(appointment.getDoctorId())),
       editable_(editable)
 {
+    ui->setupUi(this);
     setWindowTitle(editable ? QStringLiteral("改约") : QStringLiteral("预约详情"));
-    setMinimumWidth(500);
-
-    auto* root = new QVBoxLayout(this);
-    auto* form = new QFormLayout;
-    form->setHorizontalSpacing(16);
-    form->setVerticalSpacing(12);
 
     const Patient patient = appointment.getPatient();
-    auto addValue = [this, form](const QString& label, const QString& value) {
-        auto* valueLabel = new QLabel(value, this);
-        valueLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-        valueLabel->setWordWrap(true);
-        form->addRow(label, valueLabel);
-    };
+    ui->lblAppointmentId->setText(appointment.getAppointId());
+    ui->lblDoctor->setText(
+        doctor_ ? QStringLiteral("%1 · %2 · %3")
+                      .arg(doctor_->getDoctorId(), doctor_->getName(), doctor_->getDepartment())
+                : appointment.getDoctorId());
+    ui->lblPatient->setText(
+        QStringLiteral("%1 · %2 · %3岁")
+            .arg(patient.getName(),
+                 patient.getGender() == Human::Gender::Male ? QStringLiteral("男")
+                                                           : QStringLiteral("女"))
+            .arg(patient.getAge()));
+    ui->lblPatientId->setText(patient.getPatientId());
+    ui->lblPhone->setText(patient.getPhoneNumber());
+    ui->dateAppointment->setDate(appointment.getDate());
+    ui->dateAppointment->setMinimumDate(QDate::currentDate());
+    ui->dateAppointment->setMaximumDate(QDate::currentDate().addDays(28));
+    ui->edtSymptom->setPlainText(appointment.getSymptom());
 
-    addValue(QStringLiteral("预约号"), appointment.getAppointId());
-    addValue(QStringLiteral("医生"),
-             doctor_ ? QStringLiteral("%1 · %2 · %3")
-                           .arg(doctor_->getDoctorId(), doctor_->getName(), doctor_->getDepartment())
-                     : appointment.getDoctorId());
-    addValue(QStringLiteral("患者"),
-             QStringLiteral("%1 · %2 · %3岁")
-                 .arg(patient.getName(),
-                      patient.getGender() == Human::Gender::Male ? QStringLiteral("男")
-                                                                : QStringLiteral("女"))
-                 .arg(patient.getAge()));
-    addValue(QStringLiteral("身份证"), patient.getPatientId());
-    addValue(QStringLiteral("手机号"), patient.getPhoneNumber());
-
-    dateEdit_ = new QDateEdit(appointment.getDate(), this);
-    dateEdit_->setCalendarPopup(true);
-    dateEdit_->setDisplayFormat(QStringLiteral("yyyy-MM-dd"));
-    dateEdit_->setMinimumDate(QDate::currentDate());
-    dateEdit_->setMaximumDate(QDate::currentDate().addDays(28));
-    slotCombo_ = new QComboBox(this);
-    symptomEdit_ = new QTextEdit(appointment.getSymptom(), this);
-    symptomEdit_->setMinimumHeight(100);
-
-    form->addRow(QStringLiteral("日期"), dateEdit_);
-    form->addRow(QStringLiteral("时段"), slotCombo_);
-    form->addRow(QStringLiteral("症状"), symptomEdit_);
-    root->addLayout(form);
-
-    auto* buttons = new QDialogButtonBox(this);
-    confirmButton_ = buttons->addButton(editable ? QStringLiteral("保存改约")
-                                                  : QStringLiteral("关闭"),
-                                         editable ? QDialogButtonBox::AcceptRole
-                                                  : QDialogButtonBox::RejectRole);
-    if (editable)
-        buttons->addButton(QStringLiteral("取消"), QDialogButtonBox::RejectRole);
+    ui->buttonBox->setStandardButtons(
+        editable ? QDialogButtonBox::Save | QDialogButtonBox::Cancel
+                 : QDialogButtonBox::Close);
+    confirmButton_ = ui->buttonBox->button(
+        editable ? QDialogButtonBox::Save : QDialogButtonBox::Close);
+    confirmButton_->setText(editable ? QStringLiteral("保存改约") : QStringLiteral("关闭"));
     confirmButton_->setProperty("primary", editable);
-    root->addWidget(buttons);
+    ui->dateAppointment->setEnabled(editable);
+    ui->cmbSlot->setEnabled(editable);
+    ui->edtSymptom->setReadOnly(!editable);
 
-    dateEdit_->setEnabled(editable);
-    slotCombo_->setEnabled(editable);
-    symptomEdit_->setReadOnly(!editable);
-
-    connect(dateEdit_, &QDateEdit::dateChanged, this, &AppointmentDialog::refreshSlots);
+    connect(ui->dateAppointment, &QDateEdit::dateChanged,
+            this, &AppointmentDialog::refreshSlots);
     if (editable)
         connect(confirmButton_, &QPushButton::clicked, this, &AppointmentDialog::acceptChanges);
-    else
-        connect(confirmButton_, &QPushButton::clicked, this, &QDialog::reject);
-    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     refreshSlots();
+}
+
+AppointmentDialog::~AppointmentDialog()
+{
+    delete ui;
 }
 
 void AppointmentDialog::refreshSlots()
 {
-    slotCombo_->clear();
+    ui->cmbSlot->clear();
     if (!doctor_) {
         confirmButton_->setEnabled(false);
         return;
     }
 
-    const QDate date = dateEdit_->date();
+    const QDate date = ui->dateAppointment->date();
     const auto& schedule = doctor_->getSchedule();
     for (int index = 0; index < schedule.size(); ++index) {
         const Timeslot& slot = schedule.at(index);
@@ -109,26 +89,26 @@ void AppointmentDialog::refreshSlots()
         if (remaining <= 0)
             continue;
 
-        slotCombo_->addItem(
+        ui->cmbSlot->addItem(
             QStringLiteral("%1-%2（剩余 %3）")
                 .arg(slot.getStartTime().toString(QStringLiteral("HH:mm")),
                      slot.getEndTime().toString(QStringLiteral("HH:mm")))
                 .arg(remaining),
             index);
         if (date == appointment_.getDate() && slot == appointment_.getTimeslot())
-            slotCombo_->setCurrentIndex(slotCombo_->count() - 1);
+            ui->cmbSlot->setCurrentIndex(ui->cmbSlot->count() - 1);
     }
-    confirmButton_->setEnabled(!editable_ || slotCombo_->count() > 0);
+    confirmButton_->setEnabled(!editable_ || ui->cmbSlot->count() > 0);
 }
 
 void AppointmentDialog::acceptChanges()
 {
-    if (!doctor_ || slotCombo_->currentIndex() < 0) {
+    if (!doctor_ || ui->cmbSlot->currentIndex() < 0) {
         QMessageBox::warning(this, QStringLiteral("改约"),
                              QStringLiteral("所选日期没有可预约时段。"));
         return;
     }
-    if (symptomEdit_->toPlainText().trimmed().isEmpty()) {
+    if (ui->edtSymptom->toPlainText().trimmed().isEmpty()) {
         QMessageBox::warning(this, QStringLiteral("改约"),
                              QStringLiteral("症状描述不能为空。"));
         return;
@@ -138,15 +118,15 @@ void AppointmentDialog::acceptChanges()
 
 QDate AppointmentDialog::selectedDate() const
 {
-    return dateEdit_->date();
+    return ui->dateAppointment->date();
 }
 
 Timeslot AppointmentDialog::selectedTimeslot() const
 {
-    return doctor_->getSchedule().at(slotCombo_->currentData().toInt());
+    return doctor_->getSchedule().at(ui->cmbSlot->currentData().toInt());
 }
 
 QString AppointmentDialog::symptom() const
 {
-    return symptomEdit_->toPlainText().trimmed();
+    return ui->edtSymptom->toPlainText().trimmed();
 }

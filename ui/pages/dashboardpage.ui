@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DashboardPage</class>
+ <widget class="QWidget" name="DashboardPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>960</width>
+    <height>620</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <property name="spacing">
+    <number>14</number>
+   </property>
+   <property name="leftMargin">
+    <number>24</number>
+   </property>
+   <property name="topMargin">
+    <number>24</number>
+   </property>
+   <property name="rightMargin">
+    <number>24</number>
+   </property>
+   <property name="bottomMargin">
+    <number>24</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="headingLayout">
+     <item>
+      <layout class="QVBoxLayout" name="titleLayout">
+       <item>
+        <widget class="QLabel" name="pageTitle">
+         <property name="text">
+          <string>首页概览</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="subtitle">
+         <property name="text">
+          <string>专家门诊与预约情况一览</string>
+         </property>
+         <property name="sub" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="headingSpacer">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnRegister">
+       <property name="text">
+        <string>预约挂号</string>
+       </property>
+       <property name="primary" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnAppointments">
+       <property name="text">
+        <string>预约查询</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnDoctors">
+       <property name="text">
+        <string>医生管理</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="statsLayout">
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <item>
+      <widget class="QFrame" name="doctorCard">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>104</height>
+        </size>
+       </property>
+       <property name="card" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="statCard" stdset="0">
+        <bool>true</bool>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="leftMargin">
+         <number>18</number>
+        </property>
+        <property name="topMargin">
+         <number>14</number>
+        </property>
+        <property name="rightMargin">
+         <number>18</number>
+        </property>
+        <property name="bottomMargin">
+         <number>14</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblDoctorCount">
+          <property name="text">
+           <string>0</string>
+          </property>
+          <property name="statValue" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="doctorLabel">
+          <property name="text">
+           <string>专家总数</string>
+          </property>
+          <property name="statLabel" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="appointmentCard">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>104</height>
+        </size>
+       </property>
+       <property name="card" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="statCard" stdset="0">
+        <bool>true</bool>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="leftMargin">
+         <number>18</number>
+        </property>
+        <property name="topMargin">
+         <number>14</number>
+        </property>
+        <property name="rightMargin">
+         <number>18</number>
+        </property>
+        <property name="bottomMargin">
+         <number>14</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblAppointmentCount">
+          <property name="text">
+           <string>0</string>
+          </property>
+          <property name="statValue" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="appointmentLabel">
+          <property name="text">
+           <string>预约总数</string>
+          </property>
+          <property name="statLabel" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="todayCard">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>104</height>
+        </size>
+       </property>
+       <property name="card" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="statCard" stdset="0">
+        <bool>true</bool>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="leftMargin">
+         <number>18</number>
+        </property>
+        <property name="topMargin">
+         <number>14</number>
+        </property>
+        <property name="rightMargin">
+         <number>18</number>
+        </property>
+        <property name="bottomMargin">
+         <number>14</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblTodayCount">
+          <property name="text">
+           <string>0</string>
+          </property>
+          <property name="statValue" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="todayLabel">
+          <property name="text">
+           <string>今日预约</string>
+          </property>
+          <property name="statLabel" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="remainingCard">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>104</height>
+        </size>
+       </property>
+       <property name="card" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="statCard" stdset="0">
+        <bool>true</bool>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="leftMargin">
+         <number>18</number>
+        </property>
+        <property name="topMargin">
+         <number>14</number>
+        </property>
+        <property name="rightMargin">
+         <number>18</number>
+        </property>
+        <property name="bottomMargin">
+         <number>14</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblRemainingCount">
+          <property name="text">
+           <string>0</string>
+          </property>
+          <property name="statValue" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="remainingLabel">
+          <property name="text">
+           <string>今日剩余号源</string>
+          </property>
+          <property name="statLabel" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="contentLayout">
+     <property name="spacing">
+      <number>12</number>
+     </property>
+     <item>
+      <widget class="QFrame" name="upcomingCard">
+       <property name="card" stdset="0">
+        <bool>true</bool>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="leftMargin">
+         <number>16</number>
+        </property>
+        <property name="topMargin">
+         <number>16</number>
+        </property>
+        <property name="rightMargin">
+         <number>16</number>
+        </property>
+        <property name="bottomMargin">
+         <number>16</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="upcomingTitle">
+          <property name="text">
+           <string>近期预约</string>
+          </property>
+          <property name="cardTitle" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tblUpcoming">
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <column>
+           <property name="text">
+            <string>日期</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>时段</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>患者</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>医生</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QFrame" name="departmentCard">
+       <property name="card" stdset="0">
+        <bool>true</bool>
+       </property>
+       <layout class="QVBoxLayout">
+        <property name="leftMargin">
+         <number>16</number>
+        </property>
+        <property name="topMargin">
+         <number>16</number>
+        </property>
+        <property name="rightMargin">
+         <number>16</number>
+        </property>
+        <property name="bottomMargin">
+         <number>16</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="departmentTitle">
+          <property name="text">
+           <string>科室分布</string>
+          </property>
+          <property name="cardTitle" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tblDepartments">
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::NoSelection</enum>
+          </property>
+          <column>
+           <property name="text">
+            <string>科室</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>专家数</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

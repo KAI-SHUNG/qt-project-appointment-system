@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AppointmentsPage</class>
+ <widget class="QWidget" name="AppointmentsPage">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>960</width><height>620</height></rect></property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <property name="spacing"><number>12</number></property>
+   <property name="leftMargin"><number>24</number></property><property name="topMargin"><number>24</number></property>
+   <property name="rightMargin"><number>24</number></property><property name="bottomMargin"><number>24</number></property>
+   <item><widget class="QLabel" name="pageTitle"><property name="text"><string>预约查询</string></property></widget></item>
+   <item><widget class="QFrame" name="filterCard"><property name="card" stdset="0"><bool>true</bool></property><layout class="QHBoxLayout" name="filterLayout"><property name="spacing"><number>10</number></property><property name="leftMargin"><number>16</number></property><property name="topMargin"><number>14</number></property><property name="rightMargin"><number>16</number></property><property name="bottomMargin"><number>14</number></property>
+    <item><widget class="QLabel" name="doctorLabel"><property name="text"><string>医生</string></property></widget></item>
+    <item><widget class="QComboBox" name="cmbDoctor"><property name="minimumSize"><size><width>190</width><height>0</height></size></property></widget></item>
+    <item><widget class="QCheckBox" name="chkStartDate"><property name="text"><string>起始</string></property></widget></item>
+    <item><widget class="QDateEdit" name="dateStart"><property name="displayFormat"><string>yyyy-MM-dd</string></property><property name="calendarPopup"><bool>true</bool></property><property name="enabled"><bool>false</bool></property></widget></item>
+    <item><widget class="QCheckBox" name="chkEndDate"><property name="text"><string>截止</string></property></widget></item>
+    <item><widget class="QDateEdit" name="dateEnd"><property name="displayFormat"><string>yyyy-MM-dd</string></property><property name="calendarPopup"><bool>true</bool></property><property name="enabled"><bool>false</bool></property></widget></item>
+    <item><widget class="QLineEdit" name="edtKeyword"><property name="placeholderText"><string>姓名 / 身份证 / 预约号</string></property><property name="clearButtonEnabled"><bool>true</bool></property></widget></item>
+    <item><widget class="QPushButton" name="btnSearch"><property name="primary" stdset="0"><bool>true</bool></property><property name="text"><string>查询</string></property></widget></item>
+    <item><widget class="QPushButton" name="btnReset"><property name="text"><string>重置</string></property></widget></item>
+   </layout></widget></item>
+   <item><widget class="QTableWidget" name="appointmentsTable"><property name="editTriggers"><set>QAbstractItemView::NoEditTriggers</set></property><property name="selectionBehavior"><enum>QAbstractItemView::SelectRows</enum></property><property name="selectionMode"><enum>QAbstractItemView::SingleSelection</enum></property><property name="alternatingRowColors"><bool>true</bool></property>
+    <column><property name="text"><string>预约号</string></property></column><column><property name="text"><string>医生</string></property></column><column><property name="text"><string>科室</string></property></column><column><property name="text"><string>患者</string></property></column><column><property name="text"><string>性别</string></property></column><column><property name="text"><string>年龄</string></property></column><column><property name="text"><string>身份证</string></property></column><column><property name="text"><string>日期</string></property></column><column><property name="text"><string>时段</string></property></column><column><property name="text"><string>电话</string></property></column><column><property name="text"><string>症状</string></property></column><column><property name="text"><string>操作</string></property></column>
+   </widget></item>
+   <item><widget class="QLabel" name="lblCount"><property name="weak" stdset="0"><bool>true</bool></property><property name="text"><string>共 0 条预约</string></property></widget></item>
+  </layout>
+ </widget>
+ <resources/><connections/>
+</ui>

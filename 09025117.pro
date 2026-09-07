@@ -29,6 +29,7 @@ isEmpty(BUILD_TESTS) {
     SOURCES += \
         main.cpp \
         ui/mainwindow.cpp \
+        ui/pages/dashboardpage.cpp \
         ui/pages/doctorspage.cpp \
         ui/pages/registerpage.cpp \
         ui/pages/appointmentspage.cpp \
@@ -39,6 +40,7 @@ isEmpty(BUILD_TESTS) {
 
     HEADERS += \
         ui/mainwindow.h \
+        ui/pages/dashboardpage.h \
         ui/theme.h \
         ui/datadefs.h \
         ui/persistence.h \
@@ -54,6 +56,9 @@ isEmpty(BUILD_TESTS) {
         ui/mainwindow.ui \
         ui/pages/doctorspage.ui \
         ui/pages/registerpage.ui \
+        ui/pages/dashboardpage.ui \
+        ui/pages/appointmentspage.ui \
+        ui/dialogs/appointmentdialog.ui \
         ui/dialogs/doctordialog.ui \
         ui/dialogs/timeslotdialog.ui
 

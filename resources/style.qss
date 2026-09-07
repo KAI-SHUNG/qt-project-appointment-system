@@ -226,7 +226,7 @@ QLabel[sub="true"] {
 QFrame[card="true"] {
     background: #FFFFFF;
     border: 1px solid #E6EAF0;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 QListWidget#lstSlots {
@@ -309,4 +309,25 @@ QTableWidget#appointmentsTable QHeaderView::section {
 }
 QTableWidget#appointmentsTable::item {
     padding: 3px 4px;
+}
+
+/* 首页概览 */
+QFrame[statCard="true"] {
+    border-radius: 6px;
+    border-left: 2px solid #2196F3;
+}
+QLabel[statValue="true"] {
+    color: #1976D2;
+    font-size: 28px;
+    font-weight: 700;
+}
+QLabel[statLabel="true"] {
+    color: #5A6068;
+    font-size: 14px;
+}
+DashboardPage QTableWidget {
+    font-size: 14px;
+}
+DashboardPage QTableWidget::item {
+    padding: 3px 5px;
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AppointmentDialog</class>
+ <widget class="QDialog" name="AppointmentDialog">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>500</width><height>520</height></rect></property>
+  <property name="minimumSize"><size><width>500</width><height>0</height></size></property>
+  <property name="windowTitle"><string>预约详情</string></property>
+  <layout class="QVBoxLayout" name="rootLayout">
+   <property name="spacing"><number>14</number></property>
+   <property name="leftMargin"><number>20</number></property><property name="topMargin"><number>20</number></property>
+   <property name="rightMargin"><number>20</number></property><property name="bottomMargin"><number>20</number></property>
+   <item><layout class="QFormLayout" name="formLayout"><property name="horizontalSpacing"><number>16</number></property><property name="verticalSpacing"><number>12</number></property>
+    <item row="0" column="0"><widget class="QLabel" name="appointmentIdLabel"><property name="text"><string>预约号</string></property></widget></item><item row="0" column="1"><widget class="QLabel" name="lblAppointmentId"><property name="textInteractionFlags"><set>Qt::TextSelectableByMouse</set></property><property name="text"><string>-</string></property></widget></item>
+    <item row="1" column="0"><widget class="QLabel" name="doctorLabel"><property name="text"><string>医生</string></property></widget></item><item row="1" column="1"><widget class="QLabel" name="lblDoctor"><property name="wordWrap"><bool>true</bool></property><property name="textInteractionFlags"><set>Qt::TextSelectableByMouse</set></property><property name="text"><string>-</string></property></widget></item>
+    <item row="2" column="0"><widget class="QLabel" name="patientLabel"><property name="text"><string>患者</string></property></widget></item><item row="2" column="1"><widget class="QLabel" name="lblPatient"><property name="textInteractionFlags"><set>Qt::TextSelectableByMouse</set></property><property name="text"><string>-</string></property></widget></item>
+    <item row="3" column="0"><widget class="QLabel" name="patientIdLabel"><property name="text"><string>身份证</string></property></widget></item><item row="3" column="1"><widget class="QLabel" name="lblPatientId"><property name="textInteractionFlags"><set>Qt::TextSelectableByMouse</set></property><property name="text"><string>-</string></property></widget></item>
+    <item row="4" column="0"><widget class="QLabel" name="phoneLabel"><property name="text"><string>手机号</string></property></widget></item><item row="4" column="1"><widget class="QLabel" name="lblPhone"><property name="textInteractionFlags"><set>Qt::TextSelectableByMouse</set></property><property name="text"><string>-</string></property></widget></item>
+    <item row="5" column="0"><widget class="QLabel" name="dateLabel"><property name="text"><string>日期</string></property></widget></item><item row="5" column="1"><widget class="QDateEdit" name="dateAppointment"><property name="displayFormat"><string>yyyy-MM-dd</string></property><property name="calendarPopup"><bool>true</bool></property></widget></item>
+    <item row="6" column="0"><widget class="QLabel" name="slotLabel"><property name="text"><string>时段</string></property></widget></item><item row="6" column="1"><widget class="QComboBox" name="cmbSlot"/></item>
+    <item row="7" column="0"><widget class="QLabel" name="symptomLabel"><property name="text"><string>症状</string></property></widget></item><item row="7" column="1"><widget class="QTextEdit" name="edtSymptom"><property name="minimumSize"><size><width>0</width><height>100</height></size></property></widget></item>
+   </layout></item>
+   <item><widget class="QDialogButtonBox" name="buttonBox"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="standardButtons"><set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set></property></widget></item>
+  </layout>
+ </widget>
+ <resources/><connections/>
+</ui>

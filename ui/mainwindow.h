@@ -26,7 +26,6 @@ private slots:
 
 private:
     void buildPages();
-    QWidget* makePlaceholderPage(const QString& text);
 
 private:
     Ui::MainWindow* ui;
